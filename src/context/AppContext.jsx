@@ -1,0 +1,96 @@
+import { createContext, useContext, useState, useEffect } from 'react';
+
+const AppContext = createContext();
+
+export function AppProvider({ children }) {
+  // --- Auth State ---
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('ortho_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  // --- Saved Items (Wishlist) State ---
+  const [savedItems, setSavedItems] = useState(() => {
+    const saved = localStorage.getItem('ortho_saved');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // --- Enquiry Items (Cart) State ---
+  const [enquiryItems, setEnquiryItems] = useState(() => {
+    const items = localStorage.getItem('ortho_enquiry');
+    return items ? JSON.parse(items) : [];
+  });
+
+  // --- Persistence ---
+  useEffect(() => {
+    localStorage.setItem('ortho_user', JSON.stringify(user));
+  }, [user]);
+
+  useEffect(() => {
+    localStorage.setItem('ortho_saved', JSON.stringify(savedItems));
+  }, [savedItems]);
+
+  useEffect(() => {
+    localStorage.setItem('ortho_enquiry', JSON.stringify(enquiryItems));
+  }, [enquiryItems]);
+
+  // --- Handlers ---
+  const login = (userData) => {
+    // Mock login
+    setUser(userData);
+  };
+
+  const logout = () => {
+    setUser(null);
+  };
+
+  const toggleSaved = (productId) => {
+    setSavedItems((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const addToEnquiry = (product) => {
+    setEnquiryItems((prev) => {
+      const exists = prev.find((item) => item.id === product.id);
+      if (exists) return prev;
+      return [...prev, product];
+    });
+  };
+
+  const removeFromEnquiry = (productId) => {
+    setEnquiryItems((prev) => prev.filter((item) => item.id !== productId));
+  };
+
+  const clearEnquiry = () => {
+    setEnquiryItems([]);
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        savedItems,
+        toggleSaved,
+        enquiryItems,
+        addToEnquiry,
+        removeFromEnquiry,
+        clearEnquiry,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
+};
