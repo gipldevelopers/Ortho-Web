@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import ProductsPage from './pages/ProductsPage';
@@ -49,6 +50,7 @@ function AppShell() {
           <Route path="/products/therapy" element={<ProductsPage />} />
         </Routes>
       </main>
+      {!hideChrome && <FloatingWhatsApp />}
       {!hideChrome && <Footer />}
     </div>
   );
