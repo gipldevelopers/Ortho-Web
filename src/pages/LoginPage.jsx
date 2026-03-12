@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, LogIn, UserPlus, AlertCircle } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
+import AuthLayout from '../components/AuthLayout';
+import GoogleButton from '../components/GoogleButton';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -37,8 +39,19 @@ export default function LoginPage() {
     }, 1500);
   };
 
+  const handleGoogleContinue = () => {
+    setError('Google sign-in is not configured yet.');
+  };
+
   return (
-    <div className="min-h-screen pt-32 pb-16 gradient-bg flex items-center justify-center px-4">
+    <AuthLayout
+      sideTitle={
+        <>
+          Welcome back <br /> to OrthoCare
+        </>
+      }
+      sideDescription="Sign in to manage your profile, saved items, and enquiries."
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -60,6 +73,16 @@ export default function LoginPage() {
               {error}
             </motion.div>
           )}
+
+          <GoogleButton onClick={handleGoogleContinue}>Continue with Google</GoogleButton>
+
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px bg-slate-200 flex-1" />
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Or
+            </span>
+            <div className="h-px bg-slate-200 flex-1" />
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -118,6 +141,6 @@ export default function LoginPage() {
           </p>
         </div>
       </motion.div>
-    </div>
+    </AuthLayout>
   );
 }

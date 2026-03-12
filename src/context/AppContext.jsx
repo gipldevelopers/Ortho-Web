@@ -21,6 +21,9 @@ export function AppProvider({ children }) {
     return items ? JSON.parse(items) : [];
   });
 
+  const wishlistCount = savedItems.length;
+  const cartCount = enquiryItems.length;
+
   // --- Persistence ---
   useEffect(() => {
     localStorage.setItem('ortho_user', JSON.stringify(user));
@@ -75,8 +78,10 @@ export function AppProvider({ children }) {
         login,
         logout,
         savedItems,
+        wishlistCount,
         toggleSaved,
         enquiryItems,
+        cartCount,
         addToEnquiry,
         removeFromEnquiry,
         clearEnquiry,

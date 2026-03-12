@@ -4,17 +4,28 @@ import { useLocation } from 'react-router-dom';
 import { Filter, Grid3X3, LayoutList, Search, SlidersHorizontal, X } from 'lucide-react';
 import SectionTitle from '../components/SectionTitle';
 import ProductCard from '../components/ProductCard';
-import { featuredProducts, categories } from '../data';
+import { featuredProducts } from '../data';
+
+const categoryOptions = Array.from(
+  new Set(featuredProducts.map((p) => p.category).filter(Boolean)),
+).sort();
+
+const badgeOptions = Array.from(
+  new Set(featuredProducts.map((p) => p.badge).filter(Boolean)),
+).sort();
 
 const filters = {
   bodyPart: ['Knee', 'Ankle', 'Wrist', 'Back', 'Shoulder', 'Elbow', 'Neck', 'Hip'],
   supportLevel: ['Light', 'Moderate', 'Maximum', 'Adjustable'],
   usage: ['Sports', 'Post-Surgical', 'Daily Support', 'Rehabilitation', 'Prevention'],
+  category: categoryOptions,
+  badge: badgeOptions,
 };
 
 export default function ProductsPage() {
   const [selectedFilters, setSelectedFilters] = useState({
     bodyPart: [],
+    category: [],
     supportLevel: [],
     usage: [],
     badge: [],
@@ -28,6 +39,7 @@ export default function ProductsPage() {
     const params = new URLSearchParams(location.search);
     const bodyPartParam = params.get('bodyPart');
     const usageParam = params.get('usage');
+    const categoryParam = params.get('category');
     const badgeParam = params.get('badge');
     const searchParam = params.get('search');
 
@@ -35,6 +47,7 @@ export default function ProductsPage() {
 
     setSelectedFilters({
       bodyPart: bodyPartParam ? [bodyPartParam] : [],
+      category: categoryParam ? [categoryParam] : [],
       supportLevel: [],
       usage: usageParam ? [usageParam] : [],
       badge: badgeParam ? [badgeParam] : [],
@@ -53,6 +66,7 @@ export default function ProductsPage() {
   const clearFilters = () => {
     setSelectedFilters({
       bodyPart: [],
+      category: [],
       supportLevel: [],
       usage: [],
       badge: [],
@@ -66,13 +80,23 @@ export default function ProductsPage() {
     const matchesBodyPart = selectedFilters.bodyPart.length === 0 || 
                            selectedFilters.bodyPart.includes(product.bodyPart);
     
+    const matchesCategory =
+      selectedFilters.category.length === 0 ||
+      selectedFilters.category.includes(product.category);
+
     const matchesUsage = selectedFilters.usage.length === 0 || 
                         selectedFilters.usage.includes(product.usage);
 
     const matchesBadge = !selectedFilters.badge || selectedFilters.badge.length === 0 || 
                         selectedFilters.badge.includes(product.badge);
 
-    return matchesSearch && matchesBodyPart && matchesUsage && matchesBadge;
+    return (
+      matchesSearch &&
+      matchesBodyPart &&
+      matchesCategory &&
+      matchesUsage &&
+      matchesBadge
+    );
   });
 
   return (
@@ -168,6 +192,24 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
+                {/* Category Filter */}
+                <div>
+                  <h4 className="font-medium text-slate-900 mb-4">Category</h4>
+                  <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                    {filters.category.map((option) => (
+                      <label key={option} className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.category.includes(option)}
+                          onChange={() => toggleFilter('category', option)}
+                          className="w-4 h-4 text-medical-600 border-slate-300 rounded focus:ring-medical-500"
+                        />
+                        <span className="text-slate-600">{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Support Level Filter */}
                 <div>
                   <h4 className="font-medium text-slate-900 mb-4">Support Level</h4>
@@ -196,6 +238,24 @@ export default function ProductsPage() {
                           type="checkbox"
                           checked={selectedFilters.usage.includes(option)}
                           onChange={() => toggleFilter('usage', option)}
+                          className="w-4 h-4 text-medical-600 border-slate-300 rounded focus:ring-medical-500"
+                        />
+                        <span className="text-slate-600">{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Badge Filter */}
+                <div>
+                  <h4 className="font-medium text-slate-900 mb-4">Badge</h4>
+                  <div className="space-y-2">
+                    {filters.badge.map((option) => (
+                      <label key={option} className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedFilters.badge.includes(option)}
+                          onChange={() => toggleFilter('badge', option)}
                           className="w-4 h-4 text-medical-600 border-slate-300 rounded focus:ring-medical-500"
                         />
                         <span className="text-slate-600">{option}</span>
@@ -247,7 +307,24 @@ export default function ProductsPage() {
                           ))}
                         </div>
                       </div>
-                      
+
+                      <div>
+                        <h4 className="font-medium text-slate-900 mb-4">Category</h4>
+                        <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                          {filters.category.map((option) => (
+                            <label key={option} className="flex items-center space-x-3">
+                              <input
+                                type="checkbox"
+                                checked={selectedFilters.category.includes(option)}
+                                onChange={() => toggleFilter('category', option)}
+                                className="w-4 h-4 text-medical-600 border-slate-300 rounded"
+                              />
+                              <span className="text-slate-600">{option}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                       
                       <div>
                         <h4 className="font-medium text-slate-900 mb-4">Support Level</h4>
                         <div className="space-y-2">
@@ -274,6 +351,23 @@ export default function ProductsPage() {
                                 type="checkbox"
                                 checked={selectedFilters.usage.includes(option)}
                                 onChange={() => toggleFilter('usage', option)}
+                                className="w-4 h-4 text-medical-600 border-slate-300 rounded"
+                              />
+                              <span className="text-slate-600">{option}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium text-slate-900 mb-4">Badge</h4>
+                        <div className="space-y-2">
+                          {filters.badge.map((option) => (
+                            <label key={option} className="flex items-center space-x-3">
+                              <input
+                                type="checkbox"
+                                checked={selectedFilters.badge.includes(option)}
+                                onChange={() => toggleFilter('badge', option)}
                                 className="w-4 h-4 text-medical-600 border-slate-300 rounded"
                               />
                               <span className="text-slate-600">{option}</span>

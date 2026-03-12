@@ -17,51 +17,54 @@ import { TrendingUp, History, Star } from 'lucide-react';
 const navLinks = [
   {
     name: "Shop By Body Part",
-    href: "/products",
+    href: "/products?nav=bodyPart",
+    navKey: "bodyPart",
     megaMenu: [
       {
         title: "By Body Part",
         items: [
-          { name: "Ankle & Foot", href: "/products?bodyPart=Ankle" },
-          { name: "Knee", href: "/products?bodyPart=Knee" },
-          { name: "Lumbar & Back", href: "/products?bodyPart=Back" },
-          { name: "Wrist & Hand", href: "/products?bodyPart=Wrist" },
-          { name: "Cervical & Posture", href: "/products?bodyPart=Neck" },
-          { name: "Upper Limb", href: "/products?bodyPart=Shoulder" },
+          { name: "Ankle & Foot", href: "/products?nav=bodyPart&bodyPart=Ankle" },
+          { name: "Knee", href: "/products?nav=bodyPart&bodyPart=Knee" },
+          { name: "Lumbar & Back", href: "/products?nav=bodyPart&bodyPart=Back" },
+          { name: "Wrist & Hand", href: "/products?nav=bodyPart&bodyPart=Wrist" },
+          { name: "Cervical & Posture", href: "/products?nav=bodyPart&bodyPart=Neck" },
+          { name: "Upper Limb", href: "/products?nav=bodyPart&bodyPart=Shoulder" },
         ],
       },
     ],
   },
   {
     name: "Shop By Activity",
-    href: "/products",
+    href: "/products?nav=activity",
+    navKey: "activity",
     megaMenu: [
       {
         title: "By Activity",
         items: [
-          { name: "Sports & Athletics", href: "/products?usage=Sports" },
-          { name: "Daily Use", href: "/products?usage=Daily Support" },
-          { name: "Post-Surgery", href: "/products?usage=Post-Surgical" },
-          { name: "Elderly Care", href: "/products?usage=Rehabilitation" },
-          { name: "Pediatric", href: "/products?usage=Daily Support" },
-          { name: "Workplace Ergonomics", href: "/products?usage=Daily Support" },
+          { name: "Sports & Athletics", href: "/products?nav=activity&usage=Sports" },
+          { name: "Daily Use", href: "/products?nav=activity&usage=Daily%20Support" },
+          { name: "Post-Surgery", href: "/products?nav=activity&usage=Post-Surgical" },
+          { name: "Elderly Care", href: "/products?nav=activity&usage=Rehabilitation" },
+          { name: "Pediatric", href: "/products?nav=activity&usage=Daily%20Support" },
+          { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Daily%20Support" },
         ],
       },
     ],
   },
   {
     name: "Shop By Daily Support",
-    href: "/products",
+    href: "/products?nav=dailySupport",
+    navKey: "dailySupport",
     megaMenu: [
       {
         title: "By Support Type",
         items: [
-          { name: "Compression Products", href: "/products?usage=Daily Support" },
-          { name: "Braces & Supports", href: "/products?usage=Prevention" },
-          { name: "Therapy & Mobility", href: "/products?usage=Rehabilitation" },
-          { name: "Posture Correctors", href: "/products?bodyPart=Neck" },
-          { name: "Splints & Immobilizers", href: "/products?usage=Post-Surgical" },
-          { name: "Hot & Cold Therapy", href: "/products?usage=Rehabilitation" },
+          { name: "Compression Products", href: "/products?nav=dailySupport&usage=Daily%20Support" },
+          { name: "Braces & Supports", href: "/products?nav=dailySupport&usage=Prevention" },
+          { name: "Therapy & Mobility", href: "/products?nav=dailySupport&usage=Rehabilitation" },
+          { name: "Posture Correctors", href: "/products?nav=dailySupport&bodyPart=Neck" },
+          { name: "Splints & Immobilizers", href: "/products?nav=dailySupport&usage=Post-Surgical" },
+          { name: "Hot & Cold Therapy", href: "/products?nav=dailySupport&usage=Rehabilitation" },
         ],
       },
     ],
@@ -80,14 +83,31 @@ export default function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOverlayOpen, setIsSearchOverlayOpen] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [trendingProducts] = useState(featuredProducts.slice(0, 3));
   
-  const { user, cartCount, wishlistCount } = useAppContext();
+  const { user, logout, cartCount, wishlistCount } = useAppContext();
   const location = useLocation();
   const navigate = useNavigate();
   const megaMenuRef = useRef(null);
+  const accountMenuRef = useRef(null);
   const searchInputRef = useRef(null);
   const closeTimer = useRef(null);
+  const searchParams = new URLSearchParams(location.search);
+  const navParam = searchParams.get("nav");
+  const accountLabel = user?.name ? user.name.split(" ")[0] : user ? "Profile" : "Account";
+
+  const isLinkActive = (link) => {
+    if (link.name === "All Products") {
+      return location.pathname.startsWith("/products") && !navParam;
+    }
+
+    if (link.navKey) {
+      return navParam === link.navKey;
+    }
+
+    return location.pathname === link.href;
+  };
 
   // Popular searches mockup
   const popularSearches = ["Knee Brace", "Ankle Support", "Compression", "Back Pain", "Wrist Splint", "Shoulder Sling"];
@@ -114,7 +134,22 @@ export default function Navbar() {
     setIsOpen(false);
     setActiveDropdown(null);
     setMobileExpanded(null);
+    setIsAccountMenuOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (
+        accountMenuRef.current &&
+        !accountMenuRef.current.contains(event.target)
+      ) {
+        setIsAccountMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, []);
 
   const handleMouseEnter = (name) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -194,14 +229,71 @@ export default function Navbar() {
               </button>
 
               {/* Account */}
-              <Link
-                to={user ? "/profile" : "/login"}
-                className="flex flex-col items-center p-2 rounded-lg hover:bg-medical-700 transition-colors group">
-                <User className="w-5 h-5 text-medical-300 group-hover:text-white transition-colors" />
-                <span className="text-[10px] text-medical-400 group-hover:text-white mt-0.5 hidden sm:block">
-                  {user ? "Profile" : "Account"}
-                </span>
-              </Link>
+              {user ? (
+                <div ref={accountMenuRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsAccountMenuOpen((v) => !v)}
+                    className="flex flex-col items-center p-2 rounded-lg hover:bg-medical-700 transition-colors group"
+                    aria-label="Account menu"
+                  >
+                    <User className="w-5 h-5 text-medical-300 group-hover:text-white transition-colors" />
+                    <span className="text-[10px] text-medical-400 group-hover:text-white mt-0.5 hidden sm:block">
+                      {accountLabel}
+                    </span>
+                  </button>
+
+                  <AnimatePresence>
+                    {isAccountMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50"
+                      >
+                        <div className="px-4 py-3 border-b border-slate-100">
+                          <p className="text-sm font-semibold text-slate-900 truncate">
+                            {user.name}
+                          </p>
+                          <p className="text-xs text-slate-500 truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                        <div className="p-2">
+                          <Link
+                            to="/profile"
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className="block w-full text-left px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50"
+                          >
+                            Profile
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              logout();
+                              setIsAccountMenuOpen(false);
+                              navigate("/");
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50"
+                          >
+                            Sign out
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="flex flex-col items-center p-2 rounded-lg hover:bg-medical-700 transition-colors group">
+                  <User className="w-5 h-5 text-medical-300 group-hover:text-white transition-colors" />
+                  <span className="text-[10px] text-medical-400 group-hover:text-white mt-0.5 hidden sm:block">
+                    Account
+                  </span>
+                </Link>
+              )}
 
               {/* Wishlist */}
               <Link
@@ -209,7 +301,7 @@ export default function Navbar() {
                 className="relative flex flex-col items-center p-2 rounded-lg hover:bg-medical-700 transition-colors group">
                 <Heart className="w-5 h-5 text-medical-300 group-hover:text-white transition-colors" />
                 {wishlistCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
+                  <span className="absolute top-1 right-1 min-w-4 h-4 px-1 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
                     {wishlistCount}
                   </span>
                 )}
@@ -224,7 +316,7 @@ export default function Navbar() {
                 className="relative flex flex-col items-center p-2 rounded-lg hover:bg-medical-700 transition-colors group">
                 <ShoppingCart className="w-5 h-5 text-medical-300 group-hover:text-white transition-colors" />
                 {cartCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-medical-400 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
+                  <span className="absolute top-1 right-1 min-w-4 h-4 px-1 bg-medical-400 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
                     {cartCount}
                   </span>
                 )}
@@ -265,7 +357,7 @@ export default function Navbar() {
                 <Link
                   to={link.href}
                   className={`px-3 h-full flex items-center text-sm font-medium gap-2 border-b-2 transition-all duration-150 ${
-                    location.pathname === link.href
+                    isLinkActive(link)
                       ? "text-medical-600 border-medical-600"
                       : "text-slate-600 border-transparent hover:text-medical-600 hover:border-medical-400"
                   }`}>
@@ -356,7 +448,11 @@ export default function Navbar() {
                             mobileExpanded === link.name ? null : link.name,
                           )
                         }
-                        className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-medical-50 hover:text-medical-600 transition-colors">
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                          isLinkActive(link)
+                            ? "bg-medical-50 text-medical-600"
+                            : "text-slate-700 hover:bg-medical-50 hover:text-medical-600"
+                        }`}>
                         {link.name}
                         <ChevronDown
                           className={`w-4 h-4 transition-transform duration-200 ${
@@ -400,7 +496,7 @@ export default function Navbar() {
                     <Link
                       to={link.href}
                       className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                        location.pathname === link.href
+                        isLinkActive(link)
                           ? "bg-medical-50 text-medical-600"
                           : "text-slate-700 hover:bg-slate-50 hover:text-medical-600"
                       }`}>

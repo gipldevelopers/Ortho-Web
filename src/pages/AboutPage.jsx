@@ -88,7 +88,7 @@ export default function AboutPage() {
       </section>
 
       {/* Manufacturing Section */}
-      <section className="py-12 bg-white">
+      <section id="manufacturing" className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
@@ -207,7 +207,7 @@ export default function AboutPage() {
       </section>
 
       {/* Certifications Section */}
-      <section className="py-12 bg-white">
+      <section id="certifications" className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionTitle
             title="Certifications & Compliance"
