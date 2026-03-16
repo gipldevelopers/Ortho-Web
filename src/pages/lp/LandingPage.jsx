@@ -21,7 +21,7 @@ export default function LandingPage() {
       <div className="absolute -top-24 -right-20 h-72 w-72 rounded-full bg-medical-200/50 blur-3xl" />
       <div className="absolute -bottom-32 -left-10 h-80 w-80 rounded-full bg-medical-100/80 blur-3xl" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-4">
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
           <div>
             <img
