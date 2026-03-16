@@ -24,12 +24,12 @@ export default function LandingPage() {
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
           <div>
-            {/* <img
-              src="/logo/GIPL_Full-Logo-1-e1750248270610-removebg-preview.png"
+            <img
+              src="/logo/Screenshot 2026-03-16 144510-Photoroom.png"
               alt="Orthocare logo"
-              className="h-16 w-auto mb-8"
+              className="h-[140px] w-auto mb-8"
               loading="lazy"
-            /> */}
+            />
 
             <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1.5 text-sm font-medium text-medical-700 border border-white/60">
               <span className="h-2 w-2 rounded-full bg-medical-500 animate-pulse" />
