@@ -15,11 +15,16 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import SavedItemsPage from './pages/SavedItemsPage';
+import LandingPage from './pages/lp/LandingPage';
+import ThankYouPage from './pages/lp/ThankYouPage';
 
 function AppShell() {
   const location = useLocation();
   const hideChrome =
-    location.pathname === '/login' || location.pathname === '/register';
+    location.pathname === '/login' ||
+    location.pathname === '/register' ||
+    location.pathname === '/lp' ||
+    location.pathname === '/lp/thank-you';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -39,6 +44,8 @@ function AppShell() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/saved" element={<SavedItemsPage />} />
+          <Route path="/lp" element={<LandingPage />} />
+          <Route path="/lp/thank-you" element={<ThankYouPage />} />
           {/* Category routes */}
           <Route path="/products/compression" element={<ProductsPage />} />
           <Route path="/products/ankle-foot" element={<ProductsPage />} />
