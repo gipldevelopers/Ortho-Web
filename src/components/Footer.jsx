@@ -140,23 +140,42 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-            <p className="text-slate-400 text-sm">
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-slate-400 text-sm text-center">
               &copy; {new Date().getFullYear()} OrthoCare Medical Solutions. All rights reserved.
             </p>
-            <div className="flex items-center space-x-6">
-              <a href="#" className="text-slate-400 hover:text-medical-400 transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-slate-400 hover:text-medical-400 transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-slate-400 hover:text-medical-400 transition-colors">
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-slate-400 hover:text-medical-400 transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
+            <div className="w-full grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+              <div className="flex items-center justify-center gap-0 text-slate-400 text-sm md:col-start-2 md:justify-self-center">
+                <span className="uppercase tracking-widest text-[11px] text-slate-500">Powered by</span>
+                <a
+                  href="https://gohilinfotech.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition duration-200 hover:opacity-90 hover:brightness-110"
+                  aria-label="Gohil Infotech"
+                >
+                  <img
+                    src="/logo/GIPL_Full-Logo-1-e1750248270610-removebg-preview.png"
+                    alt="Gohil Infotech"
+                    className="h-10 w-auto object-contain"
+                    loading="lazy"
+                  />
+                </a>
+              </div>
+              <div className="flex items-center justify-center space-x-6 md:col-start-3 md:justify-self-end">
+                <a href="#" className="text-slate-400 hover:text-medical-400 transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-slate-400 hover:text-medical-400 transition-colors">
+                  <Twitter className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-slate-400 hover:text-medical-400 transition-colors">
+                  <Linkedin className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-slate-400 hover:text-medical-400 transition-colors">
+                  <Instagram className="w-5 h-5" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
