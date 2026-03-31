@@ -249,6 +249,7 @@ export default function EnquiryPage() {
                           name="phone"
                           value={formData.phone}
                           onChange={handleChange}
+                          required
                           className={`w-full pl-11 pr-4 py-3.5 rounded-xl border ${
                             errors.phone ? 'border-red-500 ring-4 ring-red-50/50' : 'border-slate-200'
                           } focus:border-medical-500 focus:ring-4 focus:ring-medical-50 outline-none transition-all`}

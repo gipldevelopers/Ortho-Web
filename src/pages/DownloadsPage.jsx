@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
-import { Download, Shield, Award, Clock, Search, Eye } from 'lucide-react';
-import { useState } from 'react';
+import { Download, Shield, Award, Clock, Search, Eye, Briefcase, FileText } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import SectionTitle from '../components/SectionTitle';
 import { downloadFiles } from '../data';
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost/ortho-website/backend/public/index.php';
 
 function escapePdfText(text) {
   return String(text).replaceAll('\\', '\\\\').replaceAll('(', '\\(').replaceAll(')', '\\)');
@@ -117,16 +121,66 @@ function openPdfInNewTab(bytes) {
 }
 
 export default function DownloadsPage() {
+  const [downloads, setDownloads] = useState(downloadFiles);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const iconForCategory = (category) => {
+      const value = String(category || '').toLowerCase();
+      if (value.includes('cert')) return Shield;
+      if (value.includes('price')) return Briefcase;
+      if (value.includes('guide')) return Award;
+      return FileText;
+    };
+
+    const fetchDownloads = async () => {
+      setIsLoading(true);
+      setLoadError('');
+      try {
+        const response = await fetch(`${API_BASE_URL}?route=downloads`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || 'Unable to load downloads.');
+        }
+
+        if (isMounted) {
+          const mapped = data.data.map((item) => ({
+            ...item,
+            icon: iconForCategory(item.category),
+          }));
+          setDownloads(mapped);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setDownloads(downloadFiles);
+          setLoadError(err.message || 'Unable to load downloads.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchDownloads();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const categories = [
     'All',
-    ...Array.from(new Set(downloadFiles.map((f) => f.category).filter(Boolean))),
+    ...Array.from(new Set(downloads.map((f) => f.category).filter(Boolean))),
   ];
 
   const query = searchQuery.trim().toLowerCase();
-  const filteredFiles = downloadFiles.filter((file) => {
+  const filteredFiles = downloads.filter((file) => {
     const matchesCategory = activeCategory === 'All' || file.category === activeCategory;
     const matchesQuery =
       !query ||
@@ -138,6 +192,14 @@ export default function DownloadsPage() {
   });
 
   const handleDownload = (file) => {
+    if (file.downloadUrl) {
+      const link = document.createElement('a');
+      link.href = file.downloadUrl;
+      link.rel = 'noopener';
+      link.click();
+      return;
+    }
+
     const bytes = buildMockPdfBytes({
       title: file.name,
       description: file.description,
@@ -153,6 +215,12 @@ export default function DownloadsPage() {
   };
 
   const handlePreview = (file) => {
+    if (file.previewUrl || file.downloadUrl) {
+      const url = file.previewUrl || file.downloadUrl;
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     const bytes = buildMockPdfBytes({
       title: file.name,
       description: file.description,
@@ -193,6 +261,12 @@ export default function DownloadsPage() {
       {/* Downloads Grid */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {loadError && (
+            <div className="mb-6 text-sm text-red-600">
+              {loadError} Showing local data.
+            </div>
+          )}
+
           {/* Category Filters */}
           <div className="flex flex-wrap gap-4 mb-12 justify-center">
             {categories.map((category) => (
@@ -212,8 +286,14 @@ export default function DownloadsPage() {
 
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-slate-600">
-              Showing <span className="font-semibold text-slate-900">{filteredFiles.length}</span>{' '}
-              {filteredFiles.length === 1 ? 'document' : 'documents'}
+              {isLoading ? (
+                'Loading documents...'
+              ) : (
+                <>
+                  Showing <span className="font-semibold text-slate-900">{filteredFiles.length}</span>{' '}
+                  {filteredFiles.length === 1 ? 'document' : 'documents'}
+                </>
+              )}
             </p>
             <button
               onClick={() => {
@@ -231,10 +311,9 @@ export default function DownloadsPage() {
             {filteredFiles.map((file, index) => (
               <motion.div
                 key={file.id || file.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut', delay: index * 0.03 }}
                 whileHover={{ y: -5 }}
                 className="group bg-white rounded-2xl p-6 card-shadow hover:card-shadow-hover border border-slate-100 transition-all duration-300"
               >

@@ -1,17 +1,24 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import AuthLayout from '../components/AuthLayout';
-import GoogleButton from '../components/GoogleButton';
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost/ortho-website/backend/public/index.php';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { login } = useAppContext();
   const navigate = useNavigate();
+  const googleButtonRef = useRef(null);
+  const googleInitializedRef = useRef(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,9 +46,96 @@ export default function LoginPage() {
     }, 1500);
   };
 
-  const handleGoogleContinue = () => {
-    setError('Google sign-in is not configured yet.');
-  };
+  const handleGoogleCredential = useCallback(
+    async (idToken) => {
+      setError('');
+      setIsGoogleLoading(true);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}?route=auth/google`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ idToken }),
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || 'Google sign-in failed.');
+        }
+
+        login(data.data.user, data.data.token);
+        navigate('/profile');
+      } catch (err) {
+        setError(err.message || 'Unable to continue with Google.');
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    },
+    [login, navigate]
+  );
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) {
+      setError('Google sign-in is not configured. Missing VITE_GOOGLE_CLIENT_ID.');
+      return;
+    }
+
+    let retryTimer = null;
+    let retryCount = 0;
+
+    const initGoogle = () => {
+      if (!window.google?.accounts?.id || !googleButtonRef.current) {
+        return false;
+      }
+      if (googleInitializedRef.current) {
+        return true;
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: (response) => {
+          if (!response?.credential) {
+            setError('Google did not return a valid credential.');
+            return;
+          }
+          handleGoogleCredential(response.credential);
+        },
+      });
+
+      googleButtonRef.current.innerHTML = '';
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: 'outline',
+        size: 'large',
+        type: 'standard',
+        text: 'continue_with',
+        shape: 'rectangular',
+        width: 380,
+      });
+
+      googleInitializedRef.current = true;
+      return true;
+    };
+
+    if (!initGoogle()) {
+      retryTimer = setInterval(() => {
+        retryCount += 1;
+        if (initGoogle() || retryCount > 20) {
+          clearInterval(retryTimer);
+          if (retryCount > 20) {
+            setError('Google Sign-In script failed to load.');
+          }
+        }
+      }, 250);
+    }
+
+    return () => {
+      if (retryTimer) {
+        clearInterval(retryTimer);
+      }
+    };
+  }, [handleGoogleCredential]);
 
   return (
     <AuthLayout
@@ -74,7 +168,12 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          <GoogleButton onClick={handleGoogleContinue}>Continue with Google</GoogleButton>
+          <div className="mb-2">
+            <div ref={googleButtonRef} className="w-full flex justify-center" />
+            {isGoogleLoading && (
+              <p className="mt-3 text-center text-sm text-slate-500">Signing in with Google...</p>
+            )}
+          </div>
 
           <div className="my-6 flex items-center gap-3">
             <div className="h-px bg-slate-200 flex-1" />

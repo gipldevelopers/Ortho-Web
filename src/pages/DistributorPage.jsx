@@ -4,6 +4,10 @@ import { Building2, Globe, Users, TrendingUp, CheckCircle, Send, Loader2 } from 
 import SectionTitle from '../components/SectionTitle';
 import Button from '../components/Button';
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost/ortho-website/backend/public/index.php';
+
 const benefits = [
   {
     icon: TrendingUp,
@@ -40,6 +44,7 @@ export default function DistributorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState('');
 
   const validateForm = () => {
     const newErrors = {};
@@ -60,10 +65,27 @@ export default function DistributorPage() {
     if (!validateForm()) return;
     
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+    setSubmitError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}?route=distributor`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Unable to submit application.');
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      setSubmitError(err.message || 'Unable to submit application.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -156,6 +178,9 @@ export default function DistributorPage() {
             <p className="text-slate-600 mb-8">
               Fill out the form below and our partnership team will get in touch with you.
             </p>
+            {submitError && (
+              <p className="text-red-600 text-sm mb-4">{submitError}</p>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">

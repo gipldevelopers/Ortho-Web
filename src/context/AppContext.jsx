@@ -8,6 +8,7 @@ export function AppProvider({ children }) {
     const savedUser = localStorage.getItem('ortho_user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
+  const [authToken, setAuthToken] = useState(() => localStorage.getItem('ortho_token'));
 
   // --- Saved Items (Wishlist) State ---
   const [savedItems, setSavedItems] = useState(() => {
@@ -30,6 +31,14 @@ export function AppProvider({ children }) {
   }, [user]);
 
   useEffect(() => {
+    if (authToken) {
+      localStorage.setItem('ortho_token', authToken);
+      return;
+    }
+    localStorage.removeItem('ortho_token');
+  }, [authToken]);
+
+  useEffect(() => {
     localStorage.setItem('ortho_saved', JSON.stringify(savedItems));
   }, [savedItems]);
 
@@ -38,13 +47,16 @@ export function AppProvider({ children }) {
   }, [enquiryItems]);
 
   // --- Handlers ---
-  const login = (userData) => {
-    // Mock login
+  const login = (userData, token = null) => {
     setUser(userData);
+    if (token) {
+      setAuthToken(token);
+    }
   };
 
   const logout = () => {
     setUser(null);
+    setAuthToken(null);
   };
 
   const toggleSaved = (productId) => {
@@ -75,6 +87,7 @@ export function AppProvider({ children }) {
     <AppContext.Provider
       value={{
         user,
+        authToken,
         login,
         logout,
         savedItems,

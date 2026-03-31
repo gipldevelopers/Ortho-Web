@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, MessageCircle, Download, Check, Info, FileText, Package, Ruler, Heart, Share2 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { featuredProducts } from '../data';
 import Button from '../components/Button';
 import { useAppContext } from '../context/AppContext';
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost/ortho-website/backend/public/index.php';
 
 const tabs = [
   { id: 'description', label: 'Description', icon: Info },
@@ -26,10 +30,72 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('description');
   const [selectedImage, setSelectedImage] = useState(0);
+  const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const { toggleSaved, savedItems, addToEnquiry } = useAppContext();
   
-  const product = featuredProducts.find(p => p.id === id) || featuredProducts[0];
-  const isSaved = savedItems.includes(product.id);
+  useEffect(() => {
+    let isMounted = true;
+    const fallbackProduct = featuredProducts.find((p) => p.id === id) || featuredProducts[0];
+
+    const fetchProduct = async () => {
+      setIsLoading(true);
+      setLoadError('');
+      try {
+        const response = await fetch(`${API_BASE_URL}?route=products/${encodeURIComponent(id)}`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !data.data) {
+          throw new Error(data.message || 'Unable to load product.');
+        }
+
+        if (isMounted) {
+          setProduct(data.data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setProduct(fallbackProduct);
+          setLoadError(err.message || 'Unable to load product.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchProduct();
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  useEffect(() => {
+    setSelectedImage(0);
+  }, [id, product?.id]);
+
+  const isSaved = product ? savedItems.includes(product.id) : false;
+
+  if (isLoading && !product) {
+    return (
+      <div className="min-h-screen pt-28 pb-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-slate-500">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen pt-28 pb-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-red-600">Product not found.</p>
+        </div>
+      </div>
+    );
+  }
 
   const tabContent = {
     description: (
@@ -184,7 +250,20 @@ export default function ProductDetailPage() {
           </Link>
         </nav>
 
-        <div className="grid lg:grid-cols-12 gap-12">
+        {loadError && (
+          <div className="mb-4 text-sm text-red-600">
+            {loadError} Showing local data.
+          </div>
+        )}
+
+        {(() => {
+          const images = Array.isArray(product.images) && product.images.length > 0
+            ? product.images
+            : [product.image].filter(Boolean);
+          const activeImage = images[selectedImage] || images[0] || product.image;
+
+          return (
+            <div className="grid lg:grid-cols-12 gap-12">
           {/* Images Section */}
           <div className="lg:col-span-5 space-y-4">
             <motion.div
@@ -193,28 +272,30 @@ export default function ProductDetailPage() {
               className="aspect-square bg-slate-100 rounded-3xl overflow-hidden shadow-inner border border-slate-100"
             >
               <img
-                src={product.image}
+                src={activeImage}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
             </motion.div>
-            <div className="grid grid-cols-4 gap-4">
-              {[0, 1, 2, 3].map((i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedImage(i)}
-                  className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all ${
-                    selectedImage === i ? 'border-medical-500 bg-medical-50' : 'border-transparent bg-slate-50'
-                  }`}
-                >
-                  <img
-                    src={product.image}
-                    alt={`${product.name} view ${i + 1}`}
-                    className="w-full h-full object-cover opacity-80 hover:opacity-100"
-                  />
-                </button>
-              ))}
-            </div>
+            {images.length > 1 && (
+              <div className="grid grid-cols-4 gap-4">
+                {images.map((imageUrl, i) => (
+                  <button
+                    key={imageUrl || i}
+                    onClick={() => setSelectedImage(i)}
+                    className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all ${
+                      selectedImage === i ? 'border-medical-500 bg-medical-50' : 'border-transparent bg-slate-50'
+                    }`}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`${product.name} view ${i + 1}`}
+                      className="w-full h-full object-cover opacity-80 hover:opacity-100"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
@@ -285,6 +366,8 @@ export default function ProductDetailPage() {
             </motion.div>
           </div>
         </div>
+          );
+        })()}
 
         {/* Tabs Section */}
         <div className="mt-16">

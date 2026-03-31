@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { Filter, Grid3X3, LayoutList, Search, SlidersHorizontal, X } from 'lucide-react';
@@ -6,23 +6,14 @@ import SectionTitle from '../components/SectionTitle';
 import ProductCard from '../components/ProductCard';
 import { featuredProducts } from '../data';
 
-const categoryOptions = Array.from(
-  new Set(featuredProducts.map((p) => p.category).filter(Boolean)),
-).sort();
-
-const badgeOptions = Array.from(
-  new Set(featuredProducts.map((p) => p.badge).filter(Boolean)),
-).sort();
-
-const filters = {
-  bodyPart: ['Knee', 'Ankle', 'Wrist', 'Back', 'Shoulder', 'Elbow', 'Neck', 'Hip'],
-  supportLevel: ['Light', 'Moderate', 'Maximum', 'Adjustable'],
-  usage: ['Sports', 'Post-Surgical', 'Daily Support', 'Rehabilitation', 'Prevention'],
-  category: categoryOptions,
-  badge: badgeOptions,
-};
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost/ortho-website/backend/public/index.php';
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [selectedFilters, setSelectedFilters] = useState({
     bodyPart: [],
     category: [],
@@ -34,6 +25,41 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useState('grid');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      setLoadError('');
+      try {
+        const response = await fetch(`${API_BASE_URL}?route=products`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || 'Unable to load products.');
+        }
+
+        if (isMounted) {
+          setProducts(data.data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setProducts(featuredProducts);
+          setLoadError(err.message || 'Unable to load products.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchProducts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -54,6 +80,29 @@ export default function ProductsPage() {
     });
   }, [location]);
 
+  const categoryOptions = useMemo(
+    () =>
+      Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort(),
+    [products]
+  );
+
+  const badgeOptions = useMemo(
+    () =>
+      Array.from(new Set(products.map((p) => p.badge).filter(Boolean))).sort(),
+    [products]
+  );
+
+  const filters = useMemo(
+    () => ({
+      bodyPart: ['Knee', 'Ankle', 'Wrist', 'Back', 'Shoulder', 'Elbow', 'Neck', 'Hip'],
+      supportLevel: ['Light', 'Moderate', 'Maximum', 'Adjustable'],
+      usage: ['Sports', 'Post-Surgical', 'Daily Support', 'Rehabilitation', 'Prevention'],
+      category: categoryOptions,
+      badge: badgeOptions,
+    }),
+    [categoryOptions, badgeOptions]
+  );
+
   const toggleFilter = (category, value) => {
     setSelectedFilters((prev) => ({
       ...prev,
@@ -73,9 +122,9 @@ export default function ProductsPage() {
     });
   };
 
-  const filteredProducts = featuredProducts.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.category.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = (product.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (product.category || '').toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesBodyPart = selectedFilters.bodyPart.length === 0 || 
                            selectedFilters.bodyPart.includes(product.bodyPart);
@@ -138,7 +187,7 @@ export default function ProductsPage() {
               </button>
               
               <span className="text-slate-500">
-                Showing {featuredProducts.length} products
+                {isLoading ? 'Loading products...' : `Showing ${filteredProducts.length} products`}
               </span>
             </div>
             
@@ -159,6 +208,12 @@ export default function ProductsPage() {
               </div>
             </div>
           </div>
+
+          {loadError && (
+            <div className="mb-6 text-sm text-red-600">
+              {loadError} Showing local data.
+            </div>
+          )}
 
           <div className="flex gap-8">
             {/* Sidebar Filters - Desktop */}
@@ -390,23 +445,27 @@ export default function ProductsPage() {
 
             {/* Product Grid */}
             <div className="flex-1">
-              <div className={`grid gap-4 sm:gap-6 ${
-                viewMode === 'grid' 
-                  ? 'grid-cols-2 sm:grid-cols-2 xl:grid-cols-3' 
-                  : 'grid-cols-1'
-              }`}>
-                {filteredProducts.map((product, index) => (
-                  <ProductCard key={product.id} product={product} index={index} />
-                ))}
-                {filteredProducts.length === 0 && (
-                  <div className="col-span-full py-12 text-center border-2 border-dashed border-slate-200 rounded-2xl">
-                    <p className="text-slate-500">No products found matching your criteria.</p>
-                    <button onClick={clearFilters} className="text-medical-600 hover:text-medical-700 font-medium mt-2">
-                      Clear all filters
-                    </button>
-                  </div>
-                )}
-              </div>
+              {isLoading ? (
+                <div className="py-12 text-center text-slate-500">Loading products...</div>
+              ) : (
+                <div className={`grid gap-4 sm:gap-6 ${
+                  viewMode === 'grid' 
+                    ? 'grid-cols-2 sm:grid-cols-2 xl:grid-cols-3' 
+                    : 'grid-cols-1'
+                }`}>
+                  {filteredProducts.map((product, index) => (
+                    <ProductCard key={product.id} product={product} index={index} />
+                  ))}
+                  {filteredProducts.length === 0 && (
+                    <div className="col-span-full py-12 text-center border-2 border-dashed border-slate-200 rounded-2xl">
+                      <p className="text-slate-500">No products found matching your criteria.</p>
+                      <button onClick={clearFilters} className="text-medical-600 hover:text-medical-700 font-medium mt-2">
+                        Clear all filters
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,5 +1,14 @@
 # React + Vite
 
+## Environment
+
+Create `.env` from `.env.example` and set:
+
+- `VITE_API_BASE_URL` to your PHP backend entry URL
+- `VITE_GOOGLE_CLIENT_ID` to your Google OAuth Web Client ID
+
+Google login on the login page depends on these values.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
