@@ -65,13 +65,15 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center space-x-3 mb-6">
-              <div className="w-12 h-12 gradient-medical rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-2xl">O</span>
+              <div className="w-auto h-20 bg-white rounded-xl flex items-center justify-center overflow-hidden p-1">
+                <img
+                  src="/logo/orthologo.png"
+                  alt="OrthoCare"
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                />
               </div>
-              <div>
-                <h3 className="text-xl font-bold">OrthoCare</h3>
-                <p className="text-sm text-slate-400">Medical Solutions</p>
-              </div>
+          
             </Link>
             <p className="text-slate-400 mb-6 leading-relaxed">
               Leading manufacturer of premium orthopaedic and rehabilitation products. 

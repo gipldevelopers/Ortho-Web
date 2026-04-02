@@ -51,7 +51,20 @@ export function AppProvider({ children }) {
     setUser(userData);
     if (token) {
       setAuthToken(token);
+      return;
     }
+    setAuthToken(null);
+  };
+
+  const updateUser = (updates) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      return { ...prev, ...updates };
+    });
+  };
+
+  const clearAuthToken = () => {
+    setAuthToken(null);
   };
 
   const logout = () => {
@@ -90,6 +103,8 @@ export function AppProvider({ children }) {
         authToken,
         login,
         logout,
+        updateUser,
+        clearAuthToken,
         savedItems,
         wishlistCount,
         toggleSaved,

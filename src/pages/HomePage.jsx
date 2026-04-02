@@ -11,6 +11,10 @@ import HeroSection from '../components/HeroSection';
 import BodyMap from '../components/BodyMap';
 import { categories, featuredProducts, whyChooseUs, statistics } from '../data';
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost/ortho-website/backend/public/index.php';
+
 // Animated counter component
 function AnimatedCounter({ value, suffix, label }) {
   const [count, setCount] = useState(0);
@@ -51,6 +55,48 @@ function AnimatedCounter({ value, suffix, label }) {
 }
 
 export default function HomePage() {
+  const [categoryItems, setCategoryItems] = useState(categories);
+  const [categoryError, setCategoryError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}?route=categories`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || 'Unable to load categories.');
+        }
+
+        const mapped = data.data.map((item) => {
+          const name = item.name || 'Category';
+          return {
+            id: item.id,
+            name,
+            description: item.description || `Explore products in ${name}.`,
+            imageUrl: item.imageUrl || '',
+            href: `/products?category=${encodeURIComponent(name)}`,
+          };
+        });
+
+        if (isMounted) {
+          setCategoryItems(mapped);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setCategoryError(err.message || 'Unable to load categories.');
+        }
+      }
+    };
+
+    fetchCategories();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* New Hero Section */}
@@ -82,9 +128,15 @@ export default function HomePage() {
           <SectionTitle
             title="Product Categories"
           />
+
+          {categoryError && (
+            <div className="mb-4 text-sm text-red-600">
+              {categoryError} Showing default categories.
+            </div>
+          )}
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {categories.map((category, index) => (
+            {categoryItems.map((category, index) => (
               <CategoryCard key={category.id} category={category} index={index} />
             ))}
           </div>

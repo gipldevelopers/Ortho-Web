@@ -25,8 +25,8 @@ export default function LandingPage() {
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
           <div>
             <img
-              src="/logo/Screenshot 2026-03-16 144510-Photoroom.png"
-              alt="Orthocare logo"
+              src="/logo/orthologo.png"
+              alt="OrthoCare"
               className="h-[140px] w-auto mb-8"
               loading="lazy"
             />

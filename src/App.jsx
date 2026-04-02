@@ -11,10 +11,12 @@ import DownloadsPage from './pages/DownloadsPage';
 import DistributorPage from './pages/DistributorPage';
 import ContactPage from './pages/ContactPage';
 import EnquiryPage from './pages/EnquiryPage';
+import EnquiryThankYouPage from './pages/EnquiryThankYouPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import SavedItemsPage from './pages/SavedItemsPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import LandingPage from './pages/lp/LandingPage';
 import ThankYouPage from './pages/lp/ThankYouPage';
 
@@ -23,13 +25,15 @@ function AppShell() {
   const hideChrome =
     location.pathname === '/login' ||
     location.pathname === '/register' ||
+    location.pathname === '/forgot-password' ||
     location.pathname === '/lp' ||
     location.pathname === '/lp/thank-you';
+  const contentOffsetClass = hideChrome ? '' : 'pt-[108px]';
 
   return (
     <div className="min-h-screen flex flex-col">
       {!hideChrome && <Navbar />}
-      <main className="flex-grow">
+      <main className={`flex-grow ${contentOffsetClass}`}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
@@ -40,8 +44,10 @@ function AppShell() {
           <Route path="/distributor" element={<DistributorPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/enquiry" element={<EnquiryPage />} />
+          <Route path="/enquiry/thank-you" element={<EnquiryThankYouPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/saved" element={<SavedItemsPage />} />
           <Route path="/lp" element={<LandingPage />} />

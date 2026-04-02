@@ -10,10 +10,13 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://localhost/ortho-website/backend/public/index.php';
 
+const defaultBodyParts = ['Knee', 'Ankle', 'Wrist', 'Back', 'Shoulder', 'Elbow', 'Neck', 'Hip'];
+
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
+  const [bodyPartOptions, setBodyPartOptions] = useState(defaultBodyParts);
   const [selectedFilters, setSelectedFilters] = useState({
     bodyPart: [],
     category: [],
@@ -62,6 +65,33 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const fetchBodyParts = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}?route=body-parts`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || 'Unable to load body parts.');
+        }
+
+        const names = data.data.map((item) => item.name).filter(Boolean);
+        if (isMounted && names.length > 0) {
+          setBodyPartOptions(names);
+        }
+      } catch (err) {
+        // Keep defaults on failure.
+      }
+    };
+
+    fetchBodyParts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const bodyPartParam = params.get('bodyPart');
     const usageParam = params.get('usage');
@@ -94,13 +124,13 @@ export default function ProductsPage() {
 
   const filters = useMemo(
     () => ({
-      bodyPart: ['Knee', 'Ankle', 'Wrist', 'Back', 'Shoulder', 'Elbow', 'Neck', 'Hip'],
+      bodyPart: bodyPartOptions,
       supportLevel: ['Light', 'Moderate', 'Maximum', 'Adjustable'],
       usage: ['Sports', 'Post-Surgical', 'Daily Support', 'Rehabilitation', 'Prevention'],
       category: categoryOptions,
       badge: badgeOptions,
     }),
-    [categoryOptions, badgeOptions]
+    [bodyPartOptions, categoryOptions, badgeOptions]
   );
 
   const toggleFilter = (category, value) => {

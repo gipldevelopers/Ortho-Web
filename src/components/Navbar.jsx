@@ -14,66 +14,17 @@ import { useAppContext } from "../context/AppContext";
 import { featuredProducts } from "../data";
 import { TrendingUp, History, Star } from 'lucide-react';
 
-const navLinks = [
-  {
-    name: "Shop By Body Part",
-    href: "/products?nav=bodyPart",
-    navKey: "bodyPart",
-    megaMenu: [
-      {
-        title: "By Body Part",
-        items: [
-          { name: "Ankle & Foot", href: "/products?nav=bodyPart&bodyPart=Ankle" },
-          { name: "Knee", href: "/products?nav=bodyPart&bodyPart=Knee" },
-          { name: "Lumbar & Back", href: "/products?nav=bodyPart&bodyPart=Back" },
-          { name: "Wrist & Hand", href: "/products?nav=bodyPart&bodyPart=Wrist" },
-          { name: "Cervical & Posture", href: "/products?nav=bodyPart&bodyPart=Neck" },
-          { name: "Upper Limb", href: "/products?nav=bodyPart&bodyPart=Shoulder" },
-        ],
-      },
-    ],
-  },
-  {
-    name: "Shop By Activity",
-    href: "/products?nav=activity",
-    navKey: "activity",
-    megaMenu: [
-      {
-        title: "By Activity",
-        items: [
-          { name: "Sports & Athletics", href: "/products?nav=activity&usage=Sports" },
-          { name: "Daily Use", href: "/products?nav=activity&usage=Daily%20Support" },
-          { name: "Post-Surgery", href: "/products?nav=activity&usage=Post-Surgical" },
-          { name: "Elderly Care", href: "/products?nav=activity&usage=Rehabilitation" },
-          { name: "Pediatric", href: "/products?nav=activity&usage=Daily%20Support" },
-          { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Daily%20Support" },
-        ],
-      },
-    ],
-  },
-  {
-    name: "Shop By Daily Support",
-    href: "/products?nav=dailySupport",
-    navKey: "dailySupport",
-    megaMenu: [
-      {
-        title: "By Support Type",
-        items: [
-          { name: "Compression Products", href: "/products?nav=dailySupport&usage=Daily%20Support" },
-          { name: "Braces & Supports", href: "/products?nav=dailySupport&usage=Prevention" },
-          { name: "Therapy & Mobility", href: "/products?nav=dailySupport&usage=Rehabilitation" },
-          { name: "Posture Correctors", href: "/products?nav=dailySupport&bodyPart=Neck" },
-          { name: "Splints & Immobilizers", href: "/products?nav=dailySupport&usage=Post-Surgical" },
-          { name: "Hot & Cold Therapy", href: "/products?nav=dailySupport&usage=Rehabilitation" },
-        ],
-      },
-    ],
-  },
-  { name: "All Products", href: "/products" },
-  { name: "About", href: "/about" },
-  { name: "Downloads", href: "/downloads" },
-  { name: "Distributor", href: "/distributor" },
-  { name: "Contact", href: "/contact" },
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "http://localhost/ortho-website/backend/public/index.php";
+
+const defaultBodyPartItems = [
+  { name: "Ankle & Foot", href: "/products?nav=bodyPart&bodyPart=Ankle" },
+  { name: "Knee", href: "/products?nav=bodyPart&bodyPart=Knee" },
+  { name: "Lumbar & Back", href: "/products?nav=bodyPart&bodyPart=Back" },
+  { name: "Wrist & Hand", href: "/products?nav=bodyPart&bodyPart=Wrist" },
+  { name: "Cervical & Posture", href: "/products?nav=bodyPart&bodyPart=Neck" },
+  { name: "Upper Limb", href: "/products?nav=bodyPart&bodyPart=Shoulder" },
 ];
 
 export default function Navbar() {
@@ -85,6 +36,7 @@ export default function Navbar() {
   const [isSearchOverlayOpen, setIsSearchOverlayOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [trendingProducts] = useState(featuredProducts.slice(0, 3));
+  const [bodyPartItems, setBodyPartItems] = useState(defaultBodyPartItems);
   
   const { user, logout, cartCount, wishlistCount } = useAppContext();
   const location = useLocation();
@@ -96,6 +48,61 @@ export default function Navbar() {
   const searchParams = new URLSearchParams(location.search);
   const navParam = searchParams.get("nav");
   const accountLabel = user?.name ? user.name.split(" ")[0] : user ? "Profile" : "Account";
+
+  const navLinks = [
+    {
+      name: "Shop By Body Part",
+      href: "/products?nav=bodyPart",
+      navKey: "bodyPart",
+      megaMenu: [
+        {
+          title: "By Body Part",
+          items: bodyPartItems,
+        },
+      ],
+    },
+    {
+      name: "Shop By Activity",
+      href: "/products?nav=activity",
+      navKey: "activity",
+      megaMenu: [
+        {
+          title: "By Activity",
+          items: [
+            { name: "Sports & Athletics", href: "/products?nav=activity&usage=Sports" },
+            { name: "Daily Use", href: "/products?nav=activity&usage=Daily%20Support" },
+            { name: "Post-Surgery", href: "/products?nav=activity&usage=Post-Surgical" },
+            { name: "Elderly Care", href: "/products?nav=activity&usage=Rehabilitation" },
+            { name: "Pediatric", href: "/products?nav=activity&usage=Daily%20Support" },
+            { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Daily%20Support" },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Shop By Daily Support",
+      href: "/products?nav=dailySupport",
+      navKey: "dailySupport",
+      megaMenu: [
+        {
+          title: "By Support Type",
+          items: [
+            { name: "Compression Products", href: "/products?nav=dailySupport&usage=Daily%20Support" },
+            { name: "Braces & Supports", href: "/products?nav=dailySupport&usage=Prevention" },
+            { name: "Therapy & Mobility", href: "/products?nav=dailySupport&usage=Rehabilitation" },
+            { name: "Posture Correctors", href: "/products?nav=dailySupport&bodyPart=Neck" },
+            { name: "Splints & Immobilizers", href: "/products?nav=dailySupport&usage=Post-Surgical" },
+            { name: "Hot & Cold Therapy", href: "/products?nav=dailySupport&usage=Rehabilitation" },
+          ],
+        },
+      ],
+    },
+    { name: "All Products", href: "/products" },
+    { name: "About", href: "/about" },
+    { name: "Downloads", href: "/downloads" },
+    { name: "Distributor", href: "/distributor" },
+    { name: "Contact", href: "/contact" },
+  ];
 
   const isLinkActive = (link) => {
     if (link.name === "All Products") {
@@ -138,6 +145,37 @@ export default function Navbar() {
   }, [location]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const fetchBodyParts = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}?route=body-parts`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || "Unable to load body parts.");
+        }
+
+        const items = data.data.map((item) => ({
+          name: item.name,
+          href: `/products?nav=bodyPart&bodyPart=${encodeURIComponent(item.name)}`,
+        }));
+
+        if (isMounted && items.length > 0) {
+          setBodyPartItems(items);
+        }
+      } catch (err) {
+        // Keep defaults on failure.
+      }
+    };
+
+    fetchBodyParts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const handlePointerDown = (event) => {
       if (
         accountMenuRef.current &&
@@ -170,30 +208,20 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-shadow duration-300 ${
+      className={`fixed  top-0 left-0 right-0 z-50 transition-shadow duration-300 ${
         isScrolled ? "shadow-md" : ""
       }`}>
       {/* ─── ROW 1: Top Bar ─── */}
       <div className="bg-medical-900 text-white">
         <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 gap-4">
+          <div className="flex items-center justify-between h-20 gap-4">
             {/* Logo */}
-            <Link
-              to="/"
-              className="flex items-center space-x-2.5 flex-shrink-0">
-              <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow">
-                <span className="text-medical-700 font-extrabold text-lg leading-none">
-                  O
-                </span>
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-base font-bold text-white leading-tight tracking-wide">
-                  OrthoCare
-                </p>
-                <p className="text-[10px] text-medical-300 leading-tight">
-                  Medical Solutions
-                </p>
-              </div>
+            <Link to="/" className="flex items-center flex-shrink-0">
+              <img
+                src="/logo/orthologo.png"
+                alt="OrthoCare"
+                className="h-16 w-16 object-contain bg-white rounded-md p-1 shadow-sm"
+              />
             </Link>
 
             {/* Search Bar */}

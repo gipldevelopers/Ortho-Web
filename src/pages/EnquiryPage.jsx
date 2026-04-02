@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Send, Loader2, CheckCircle, Package, User, Building2, Mail, Phone, FileText, Trash2, ShoppingBag, X } from 'lucide-react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { Send, Loader2, Package, User, Building2, Mail, Phone, FileText, ShoppingBag, X } from 'lucide-react';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import SectionTitle from '../components/SectionTitle';
 import Button from '../components/Button';
 import { featuredProducts } from '../data';
@@ -9,6 +9,7 @@ import { useAppContext } from '../context/AppContext';
 
 export default function EnquiryPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { user, enquiryItems, addToEnquiry, removeFromEnquiry, clearEnquiry } = useAppContext();
   const productIdParam = searchParams.get('product');
   
@@ -21,8 +22,12 @@ export default function EnquiryPage() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState('');
+
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL ||
+    'http://localhost/ortho-website/backend/public/index.php';
 
   // Add product from URL if present
   useEffect(() => {
@@ -34,15 +39,31 @@ export default function EnquiryPage() {
     }
   }, [productIdParam, addToEnquiry]);
 
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      name: user?.name || '',
+      email: user?.email || '',
+      company: user?.company || prev.company,
+      phone: user?.phone || prev.phone,
+    }));
+  }, [user]);
+
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.email.trim()) {
+    const nameValue = (user?.name || formData.name || '').trim();
+    const emailValue = (user?.email || formData.email || '').trim();
+    if (!nameValue) newErrors.name = 'Name is required';
+    if (!emailValue) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(emailValue)) {
       newErrors.email = 'Please enter a valid email';
     }
     if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
+    if (!user) newErrors.auth = 'Please login to submit an enquiry';
     if (enquiryItems.length === 0) newErrors.items = 'Please add at least one product';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -53,11 +74,42 @@ export default function EnquiryPage() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    // Mock submission
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    clearEnquiry();
+    setSubmitError('');
+
+    try {
+      const payload = {
+        name: (user?.name || formData.name || '').trim(),
+        company: formData.company.trim(),
+        email: (user?.email || formData.email || '').trim(),
+        phone: formData.phone.trim(),
+        message: formData.message.trim(),
+        items: enquiryItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          code: item.code,
+          category: item.category,
+        })),
+      };
+
+      const response = await fetch(`${API_BASE_URL}?route=enquiry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Unable to submit enquiry.');
+      }
+
+      const count = enquiryItems.length;
+      clearEnquiry();
+      navigate('/enquiry/thank-you', { replace: true, state: { count } });
+    } catch (err) {
+      setSubmitError(err.message || 'Unable to submit enquiry.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -67,33 +119,6 @@ export default function EnquiryPage() {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
-
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen pt-20">
-        <section className="py-24 gradient-bg">
-          <div className="max-w-2xl mx-auto px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="w-20 h-20 bg-medical-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-10 h-10 text-medical-600" />
-              </div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">
-                Enquiry Submitted!
-              </h2>
-              <p className="text-slate-600 mb-8">
-                Thank you for your interest. Our sales team will review your enquiry for {enquiryItems.length} products and contact you within 24 hours.
-              </p>
-              <Button href="/products">Browse More Products</Button>
-            </motion.div>
-          </div>
-        </section>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen pt-20 bg-slate-50">
@@ -113,6 +138,17 @@ export default function EnquiryPage() {
       {/* Main Content */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {!user && (
+            <div className="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-slate-100 text-center max-w-2xl mx-auto">
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">Login Required</h3>
+              <p className="text-slate-600 mb-6">
+                Please login to submit an enquiry. Your name and email will be auto-filled.
+              </p>
+              <Button href="/login" size="lg">Go to Login</Button>
+            </div>
+          )}
+
+          {user && (
           <div className="grid lg:grid-cols-3 gap-12">
             
             {/* Left Column: Enquiry List */}
@@ -165,11 +201,14 @@ export default function EnquiryPage() {
                   </div>
                 )}
 
-                {errors.items && (
-                  <p className="text-red-500 text-xs mt-4 text-center">{errors.items}</p>
-                )}
-              </div>
-            </div>
+                    {errors.items && (
+                      <p className="text-red-500 text-xs mt-4 text-center">{errors.items}</p>
+                    )}
+                    {errors.auth && (
+                      <p className="text-red-500 text-xs mt-2 text-center">{errors.auth}</p>
+                    )}
+                  </div>
+                </div>
 
             {/* Right Column: Information Form */}
             <div className="lg:col-span-2">
@@ -190,11 +229,11 @@ export default function EnquiryPage() {
                         <input
                           type="text"
                           name="name"
-                          value={formData.name}
-                          onChange={handleChange}
+                          value={user?.name || formData.name}
+                          readOnly
                           className={`w-full pl-11 pr-4 py-3.5 rounded-xl border ${
                             errors.name ? 'border-red-500 ring-4 ring-red-50/50' : 'border-slate-200'
-                          } focus:border-medical-500 focus:ring-4 focus:ring-medical-50 outline-none transition-all`}
+                          } bg-slate-50 text-slate-700 cursor-not-allowed`}
                           placeholder="Your Name"
                         />
                       </div>
@@ -228,11 +267,11 @@ export default function EnquiryPage() {
                         <input
                           type="email"
                           name="email"
-                          value={formData.email}
-                          onChange={handleChange}
+                          value={user?.email || formData.email}
+                          readOnly
                           className={`w-full pl-11 pr-4 py-3.5 rounded-xl border ${
                             errors.email ? 'border-red-500 ring-4 ring-red-50/50' : 'border-slate-200'
-                          } focus:border-medical-500 focus:ring-4 focus:ring-medical-50 outline-none transition-all`}
+                          } bg-slate-50 text-slate-700 cursor-not-allowed`}
                           placeholder="email@example.com"
                         />
                       </div>
@@ -294,10 +333,14 @@ export default function EnquiryPage() {
                       </>
                     )}
                   </Button>
+                  {submitError && (
+                    <p className="text-red-500 text-sm text-center mt-3">{submitError}</p>
+                  )}
                 </form>
               </motion.div>
             </div>
           </div>
+          )}
         </div>
       </section>
     </div>

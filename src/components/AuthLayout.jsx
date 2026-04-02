@@ -22,8 +22,13 @@ export default function AuthLayout({
         <div className="hidden lg:flex flex-col bg-[#f4f0ea] h-full">
           <div className="p-10">
             <Link to="/" className="inline-flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-medical-600 text-white font-extrabold flex items-center justify-center">
-                O
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden">
+                <img
+                  src="/logo/orthologo.png"
+                  alt="OrthoCare"
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                />
               </div>
               <div className="leading-tight">
                 <div className="text-xl font-bold text-slate-900">OrthoCare</div>

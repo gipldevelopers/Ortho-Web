@@ -3,6 +3,11 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function CategoryCard({ category, index = 0 }) {
+  const Icon = category.icon;
+  const imageUrl = category.imageUrl || category.image;
+  const title = category.name || 'Category';
+  const fallbackLetter = title.trim().charAt(0).toUpperCase() || 'C';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -22,13 +27,25 @@ export default function CategoryCard({ category, index = 0 }) {
           {/* Content */}
           <div className="relative z-10">
             {/* Icon */}
-            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-medical-100 to-medical-200 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-              <category.icon className="w-6 h-6 sm:w-8 sm:h-8 text-medical-600" />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-medical-100 to-medical-200 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 overflow-hidden">
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={title}
+                  className="w-full h-full object-cover"
+                />
+              ) : Icon ? (
+                <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-medical-600" />
+              ) : (
+                <span className="text-medical-700 font-semibold text-lg sm:text-xl">
+                  {fallbackLetter}
+                </span>
+              )}
             </div>
             
             {/* Title */}
             <h3 className="text-sm sm:text-lg md:text-xl font-bold text-slate-900 mb-1.5 sm:mb-3 group-hover:text-medical-600 transition-colors line-clamp-1 sm:line-clamp-none">
-              {category.name}
+              {title}
             </h3>
             
             {/* Description */}

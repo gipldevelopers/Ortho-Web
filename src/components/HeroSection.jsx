@@ -306,7 +306,7 @@ const HeroButtons = () => (
 // Main Hero Section
 export default function HeroSection() {
   return (
-    <section className="relative flex items-center pt-20 lg:pt-28 pb-8 sm:pb-10 md:pb-12 overflow-hidden">
+    <section className="relative flex items-center pt-2 lg:pt-2 pb-8 sm:pb-10 md:pb-12 overflow-hidden">
       <BackgroundDecoration />
       
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
