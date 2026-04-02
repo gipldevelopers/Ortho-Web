@@ -1,10 +1,23 @@
 import { Download, Mail, MapPin, MessageSquare, Phone, User } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const CATALOG_PATH = '/catalog/IGR-E-CATALOGUE%202026%20(1).pdf';
+const CATALOG_PATH = '/catalog/IGR_E_CATELOGUE_2026_EMAIL.pdf';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost/ortho-website/backend/public/index.php';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    city: '',
+    message: '',
+  });
 
   const handleDownload = () => {
     const a = document.createElement('a');
@@ -76,9 +89,38 @@ export default function LandingPage() {
 
             <form
               className="space-y-4"
-              onSubmit={(event) => {
+              onSubmit={async (event) => {
                 event.preventDefault();
-                navigate('/lp/thank-you');
+                if (isSubmitting) return;
+                setSubmitError('');
+                setIsSubmitting(true);
+
+                try {
+                  const response = await fetch(`${API_BASE_URL}?route=lp-lead`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      name: formData.name.trim(),
+                      phone: formData.phone.trim(),
+                      email: formData.email.trim(),
+                      city: formData.city.trim(),
+                      message: formData.message.trim(),
+                    }),
+                  });
+
+                  const data = await response.json();
+                  if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Unable to submit your details.');
+                  }
+
+                  navigate('/lp/thank-you');
+                } catch (err) {
+                  setSubmitError(err.message || 'Unable to submit your details.');
+                } finally {
+                  setIsSubmitting(false);
+                }
               }}
             >
               <div>
@@ -91,6 +133,10 @@ export default function LandingPage() {
                     type="text"
                     required
                     placeholder="Your full name"
+                    value={formData.name}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, name: event.target.value }))
+                    }
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-11 py-3 text-sm text-slate-700 focus:border-medical-500 focus:ring-2 focus:ring-medical-200 outline-none transition"
                   />
                 </div>
@@ -106,6 +152,10 @@ export default function LandingPage() {
                     type="tel"
                     required
                     placeholder="Phone number"
+                    value={formData.phone}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, phone: event.target.value }))
+                    }
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-11 py-3 text-sm text-slate-700 focus:border-medical-500 focus:ring-2 focus:ring-medical-200 outline-none transition"
                   />
                 </div>
@@ -121,6 +171,10 @@ export default function LandingPage() {
                     type="email"
                     required
                     placeholder="you@example.com"
+                    value={formData.email}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, email: event.target.value }))
+                    }
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-11 py-3 text-sm text-slate-700 focus:border-medical-500 focus:ring-2 focus:ring-medical-200 outline-none transition"
                   />
                 </div>
@@ -136,6 +190,10 @@ export default function LandingPage() {
                     type="text"
                     required
                     placeholder="City / Region"
+                    value={formData.city}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, city: event.target.value }))
+                    }
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-11 py-3 text-sm text-slate-700 focus:border-medical-500 focus:ring-2 focus:ring-medical-200 outline-none transition"
                   />
                 </div>
@@ -152,6 +210,10 @@ export default function LandingPage() {
                     name="message"
                     rows="4"
                     placeholder="Share any specific product interest"
+                    value={formData.message}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, message: event.target.value }))
+                    }
                     className="w-full rounded-xl border border-slate-200 bg-white/90 px-11 py-3 text-sm text-slate-700 focus:border-medical-500 focus:ring-2 focus:ring-medical-200 outline-none transition resize-none"
                   />
                 </div>
@@ -159,10 +221,17 @@ export default function LandingPage() {
 
               <button
                 type="submit"
-                className="w-full rounded-xl bg-slate-900 px-6 py-3 text-white font-semibold hover:bg-slate-800 transition-colors"
+                disabled={isSubmitting}
+                className="w-full rounded-xl bg-slate-900 px-6 py-3 text-white font-semibold hover:bg-slate-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Notify Me When It Is Live
+                {isSubmitting ? 'Submitting...' : 'Notify Me When It Is Live'}
               </button>
+
+              {submitError && (
+                <div className="text-sm text-red-600 text-center">
+                  {submitError}
+                </div>
+              )}
 
               <div className="text-xs text-slate-500 text-center">
                 We respect your privacy and will never share your details.
