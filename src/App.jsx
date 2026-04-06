@@ -37,8 +37,8 @@ function AppShell() {
       <main className={`flex-grow ${contentOffsetClass}`}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/lp" element={<LandingPage />} />
-          <Route path="/lp/thank-you" element={<ThankYouPage />} />
+          {/* <Route path="/lp" element={<LandingPage />} /> */}
+          <Route path="/thank-you" element={<ThankYouPage />} />
           {/* <Route path="/about" element={<AboutPage />} /> */}
           {/* <Route path="/products" element={<ProductsPage />} /> */}
           {/* <Route path="/products/:id" element={<ProductDetailPage />} /> */}

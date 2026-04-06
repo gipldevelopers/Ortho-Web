@@ -1,0 +1,19 @@
+<IfModule mod_setenvif.c>
+    SetEnvIfNoCase Origin "^https://(www\.)?igrortho\.com$" ACAO=$0
+    SetEnvIfNoCase Origin "^http://localhost(:[0-9]+)?$" ACAO=$0
+    SetEnvIfNoCase Origin "^http://127\.0\.0\.1(:[0-9]+)?$" ACAO=$0
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "%{ACAO}e" env=ACAO
+    Header always set Vary "Origin" env=ACAO
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    Header always set Access-Control-Max-Age "86400"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_METHOD} =OPTIONS
+    RewriteRule ^ - [R=204,L]
+</IfModule>
