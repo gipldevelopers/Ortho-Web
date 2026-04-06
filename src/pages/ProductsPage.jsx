@@ -5,10 +5,7 @@ import { Filter, Grid3X3, LayoutList, Search, SlidersHorizontal, X } from 'lucid
 import SectionTitle from '../components/SectionTitle';
 import ProductCard from '../components/ProductCard';
 import { featuredProducts } from '../data';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
+import { buildApiUrl } from '../config/api';
 
 const defaultBodyParts = ['Knee', 'Ankle', 'Wrist', 'Back', 'Shoulder', 'Elbow', 'Neck', 'Hip'];
 
@@ -36,7 +33,7 @@ export default function ProductsPage() {
       setIsLoading(true);
       setLoadError('');
       try {
-        const response = await fetch(`${API_BASE_URL}?route=products`);
+        const response = await fetch(buildApiUrl('products'));
         const data = await response.json();
 
         if (!response.ok || !data.success || !Array.isArray(data.data)) {
@@ -69,7 +66,7 @@ export default function ProductsPage() {
 
     const fetchBodyParts = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}?route=body-parts`);
+        const response = await fetch(buildApiUrl('body-parts'));
         const data = await response.json();
 
         if (!response.ok || !data.success || !Array.isArray(data.data)) {

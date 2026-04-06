@@ -5,10 +5,7 @@ import { Link, useParams } from 'react-router-dom';
 import { featuredProducts } from '../data';
 import Button from '../components/Button';
 import { useAppContext } from '../context/AppContext';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
+import { buildApiUrl } from '../config/api';
 
 const tabs = [
   { id: 'description', label: 'Description', icon: Info },
@@ -43,7 +40,7 @@ export default function ProductDetailPage() {
       setIsLoading(true);
       setLoadError('');
       try {
-        const response = await fetch(`${API_BASE_URL}?route=products/${encodeURIComponent(id)}`);
+        const response = await fetch(buildApiUrl(`products/${encodeURIComponent(id)}`));
         const data = await response.json();
 
         if (!response.ok || !data.success || !data.data) {

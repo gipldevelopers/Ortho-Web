@@ -1,11 +1,9 @@
 import { Download, Mail, MapPin, MessageSquare, Phone, User } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { buildApiUrl } from '../../config/api';
 
 const CATALOG_PATH = '/catalog/IGR_E_CATELOGUE_2026_EMAIL.pdf';
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -96,7 +94,7 @@ export default function LandingPage() {
                 setIsSubmitting(true);
 
                 try {
-                  const response = await fetch(`${API_BASE_URL}?route=lp-lead`, {
+                  const response = await fetch(buildApiUrl('lp-lead'), {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',

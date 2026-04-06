@@ -4,10 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, LogIn, AlertCircle, Phone } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import AuthLayout from '../components/AuthLayout';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
+import { buildApiUrl } from '../config/api';
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 export default function LoginPage() {
@@ -89,7 +86,7 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}?route=auth/google`, {
+      const response = await fetch(buildApiUrl('auth/google'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

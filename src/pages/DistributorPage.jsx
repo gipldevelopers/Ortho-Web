@@ -3,10 +3,7 @@ import { motion } from 'framer-motion';
 import { Building2, Globe, Users, TrendingUp, CheckCircle, Send, Loader2 } from 'lucide-react';
 import SectionTitle from '../components/SectionTitle';
 import Button from '../components/Button';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
+import { buildApiUrl } from '../config/api';
 
 const benefits = [
   {
@@ -67,7 +64,7 @@ export default function DistributorPage() {
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      const response = await fetch(`${API_BASE_URL}?route=distributor`, {
+      const response = await fetch(buildApiUrl('distributor'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

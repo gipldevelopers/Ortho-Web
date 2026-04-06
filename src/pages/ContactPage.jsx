@@ -3,10 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Clock, Send, Loader2, CheckCircle } from 'lucide-react';
 import SectionTitle from '../components/SectionTitle';
 import Button from '../components/Button';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
+import { buildApiUrl } from '../config/api';
 
 const contactInfo = [
   {
@@ -68,7 +65,7 @@ export default function ContactPage() {
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      const response = await fetch(`${API_BASE_URL}?route=contact`, {
+      const response = await fetch(buildApiUrl('contact'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

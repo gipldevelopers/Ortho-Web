@@ -12,11 +12,8 @@ import {
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { featuredProducts } from "../data";
+import { buildApiUrl } from "../config/api";
 import { TrendingUp, History, Star } from 'lucide-react';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "http://localhost/ortho-website/backend/public/index.php";
 
 const defaultBodyPartItems = [
   { name: "Ankle & Foot", href: "/products?nav=bodyPart&bodyPart=Ankle" },
@@ -149,7 +146,7 @@ export default function Navbar() {
 
     const fetchBodyParts = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}?route=body-parts`);
+        const response = await fetch(buildApiUrl('body-parts'));
         const data = await response.json();
 
         if (!response.ok || !data.success || !Array.isArray(data.data)) {

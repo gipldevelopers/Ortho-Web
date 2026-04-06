@@ -3,10 +3,7 @@ import { Download, Shield, Award, Clock, Search, Eye, Briefcase, FileText } from
 import { useEffect, useState } from 'react';
 import SectionTitle from '../components/SectionTitle';
 import { downloadFiles } from '../data';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
+import { buildApiUrl } from '../config/api';
 
 function escapePdfText(text) {
   return String(text).replaceAll('\\', '\\\\').replaceAll('(', '\\(').replaceAll(')', '\\)');
@@ -142,7 +139,7 @@ export default function DownloadsPage() {
       setIsLoading(true);
       setLoadError('');
       try {
-        const response = await fetch(`${API_BASE_URL}?route=downloads`);
+        const response = await fetch(buildApiUrl('downloads'));
         const data = await response.json();
 
         if (!response.ok || !data.success || !Array.isArray(data.data)) {

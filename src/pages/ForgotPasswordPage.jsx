@@ -3,10 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, Lock, AlertCircle, KeyRound } from 'lucide-react';
 import AuthLayout from '../components/AuthLayout';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
+import { buildApiUrl } from '../config/api';
 
 export default function ForgotPasswordPage() {
   const [formData, setFormData] = useState({
@@ -37,7 +34,7 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}?route=auth/password-reset`, {
+      const response = await fetch(buildApiUrl('auth/password-reset'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

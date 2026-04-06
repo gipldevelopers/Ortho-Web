@@ -10,10 +10,7 @@ import Button from '../components/Button';
 import HeroSection from '../components/HeroSection';
 import BodyMap from '../components/BodyMap';
 import { categories, featuredProducts, whyChooseUs, statistics } from '../data';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
+import { buildApiUrl } from '../config/api';
 
 // Animated counter component
 function AnimatedCounter({ value, suffix, label }) {
@@ -63,7 +60,7 @@ export default function HomePage() {
 
     const fetchCategories = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}?route=categories`);
+        const response = await fetch(buildApiUrl('categories'));
         const data = await response.json();
 
         if (!response.ok || !data.success || !Array.isArray(data.data)) {

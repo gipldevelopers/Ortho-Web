@@ -2,9 +2,15 @@
 
 ## Environment
 
-Create `.env` from `.env.example` and set:
+Use the environment file that matches the target deployment:
 
-- `VITE_API_BASE_URL` to your PHP backend entry URL
+- `.env.development`
+- `.env.staging`
+- `.env.production`
+
+Set:
+
+- `REACT_APP_API_BASE_URL` to your PHP backend public base URL
 - `VITE_GOOGLE_CLIENT_ID` to your Google OAuth Web Client ID
 
 Google login on the login page depends on these values.

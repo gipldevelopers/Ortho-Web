@@ -6,6 +6,7 @@ import SectionTitle from '../components/SectionTitle';
 import Button from '../components/Button';
 import { featuredProducts } from '../data';
 import { useAppContext } from '../context/AppContext';
+import { buildApiUrl } from '../config/api';
 
 export default function EnquiryPage() {
   const [searchParams] = useSearchParams();
@@ -24,10 +25,6 @@ export default function EnquiryPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
-
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ||
-    'http://localhost/ortho-website/backend/public/index.php';
 
   // Add product from URL if present
   useEffect(() => {
@@ -91,7 +88,7 @@ export default function EnquiryPage() {
         })),
       };
 
-      const response = await fetch(`${API_BASE_URL}?route=enquiry`, {
+      const response = await fetch(buildApiUrl('enquiry'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

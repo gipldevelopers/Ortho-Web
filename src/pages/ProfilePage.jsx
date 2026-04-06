@@ -3,10 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Building2, Phone, Calendar, LogOut, Package, Heart, Settings } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost/ortho-website/backend/public/index.php';
+import { buildApiUrl } from '../config/api';
 
 export default function ProfilePage() {
   const { user, logout, savedItems, enquiryItems, updateUser, authToken, clearAuthToken } =
@@ -48,7 +45,7 @@ export default function ProfilePage() {
 
     try {
       if (authToken && authToken.trim() !== '') {
-        const response = await fetch(`${API_BASE_URL}?route=auth/profile`, {
+        const response = await fetch(buildApiUrl('auth/profile'), {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
