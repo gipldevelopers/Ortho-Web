@@ -1,8 +1,10 @@
-const rawApiBaseUrl = String(process.env.REACT_APP_API_BASE_URL || '').trim();
+const rawApiBaseUrl = String(
+  process.env.REACT_APP_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || ''
+).trim();
 
 if (!rawApiBaseUrl) {
   throw new Error(
-    'Missing REACT_APP_API_BASE_URL. Set it in frontend/.env.development, frontend/.env.staging, or frontend/.env.production.'
+    'Missing API base URL. Set REACT_APP_API_BASE_URL or VITE_API_BASE_URL in the frontend env file.'
   );
 }
 

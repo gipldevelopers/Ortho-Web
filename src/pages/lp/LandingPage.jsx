@@ -113,7 +113,7 @@ export default function LandingPage() {
                     throw new Error(data.message || 'Unable to submit your details.');
                   }
 
-                  navigate('/lp/thank-you');
+                  navigate('/thank-you');
                 } catch (err) {
                   setSubmitError(err.message || 'Unable to submit your details.');
                 } finally {
