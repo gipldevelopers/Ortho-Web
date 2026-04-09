@@ -198,8 +198,8 @@ export default function PainLocator() {
       <style>{styles}</style>
       <section className="py-6 sm:py-10 lg:py-14 bg-gradient-to-b from-white to-red-50/30">
         <div className="max-w-7xl mx-auto px-2 sm:px-2 lg:px-2">
-          <SectionTitle
-            title="Locate Your Pain Area"
+          <SectionTitle 
+            title="Where Does it Hurt?"
             // subtitle="Get the right support where you need it"
           />
           
@@ -255,15 +255,15 @@ export default function PainLocator() {
                   <div className="space-y-4">
                     <div className="flex gap-3">
                       <div className="w-6 h-6 rounded-full bg-red-50 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-red-600 border border-red-100">1</div>
-                      <p className="text-xs text-slate-600 leading-tight">Identify the area where you feel discomfort.</p>
+                      <p className="text-xs text-slate-600 leading-tight">Tap your painful area. </p>
                     </div>
                     <div className="flex gap-3">
                       <div className="w-6 h-6 rounded-full bg-red-50 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-red-600 border border-red-100">2</div>
-                      <p className="text-xs text-slate-600 leading-tight">Click the red hotspot for specialized solutions.</p>
+                      <p className="text-xs text-slate-600 leading-tight">Explore supports designed for that speciϐic region.</p>
                     </div>
                     <div className="flex gap-3">
                       <div className="w-6 h-6 rounded-full bg-red-50 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-red-600 border border-red-100">3</div>
-                      <p className="text-xs text-slate-600 leading-tight">Consult with our specialists for a precise fit.</p>
+                      <p className="text-xs text-slate-600 leading-tight">Need help? Consult with our orthopedic specialists for tailored recommendations.</p>
                     </div>
                   </div>
                 </div>

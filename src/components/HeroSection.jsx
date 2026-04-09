@@ -68,22 +68,22 @@ const BackgroundDecoration = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     {/* Soft gradient background */}
     <div className="absolute inset-0 bg-gradient-to-br from-white via-medical-50/50 to-medical-100/30" />
-    
+
     {/* Radial glow behind hero image */}
     <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-medical-200/40 via-medical-100/20 to-transparent rounded-full blur-3xl" />
-    
+
     {/* Abstract medical shapes */}
     <svg className="absolute top-20 left-10 w-32 h-32 text-medical-100/60" viewBox="0 0 100 100">
       <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="2" fill="none" />
       <circle cx="50" cy="50" r="25" stroke="currentColor" strokeWidth="1" fill="none" />
     </svg>
-    
+
     <svg className="absolute bottom-40 left-1/4 w-24 h-24 text-medical-200/50" viewBox="0 0 100 100">
       <path d="M20,50 Q50,20 80,50 Q50,80 20,50" stroke="currentColor" strokeWidth="2" fill="none" />
     </svg>
-    
+
     {/* Soft grid pattern */}
-    <div 
+    <div
       className="absolute inset-0 opacity-[0.03]"
       style={{
         backgroundImage: `
@@ -93,11 +93,11 @@ const BackgroundDecoration = () => (
         backgroundSize: '60px 60px'
       }}
     />
-    
+
     {/* Wave lines */}
     <svg className="absolute bottom-0 left-0 right-0 w-full h-32 text-medical-100/40" preserveAspectRatio="none" viewBox="0 0 1440 120">
-      <path 
-        d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,30 1440,60 L1440,120 L0,120 Z" 
+      <path
+        d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,30 1440,60 L1440,120 L0,120 Z"
         fill="currentColor"
       />
     </svg>
@@ -145,7 +145,7 @@ const HeroVisual = () => {
             alt="Medical Professional"
             className="w-48 h-60 sm:w-64 sm:h-80 md:w-80 md:h-96 lg:w-96 lg:h-[420px] object-cover rounded-2xl shadow-2xl"
           />
-          
+
           {/* Glow effect behind main image */}
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-medical-400/20 to-transparent rounded-2xl blur-xl scale-110" />
         </div>
@@ -216,9 +216,9 @@ const HeroText = () => (
     className="text-center lg:text-left"
   >
     {/* Badge */}
-    <motion.div variants={fadeUpVariants} className="inline-flex items-center space-x-2 mb-4 sm:mb-6">
+    <motion.div variants={fadeUpVariants} className="inline-flex items-center space-x-2 mb-2 sm:mb-4 mt-12">
       <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-medical-100 text-medical-700 text-xs sm:text-sm font-medium rounded-full">
-        Trusted Medical Partner
+        Your Trusted Orthopedic Doctor Since 1995
       </span>
       <div className="flex items-center text-amber-500">
         {[...Array(5)].map((_, i) => (
@@ -230,16 +230,16 @@ const HeroText = () => (
     </motion.div>
 
     {/* Headline - Mobile: text-2xl, Tablet: text-4xl, Desktop: text-5xl/text-6xl */}
-    <motion.h1 
+    <motion.h1
       variants={fadeUpVariants}
       className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-bold text-slate-900 leading-tight mb-4 sm:mb-6"
     >
-      Advanced{' '}
-      <span className="text-medical-600">Orthopaedic</span>
+      Orthopaedic{' '}
+      <span className="text-medical-600">Supports</span>
       <br className="hidden sm:block" />
-      {' '}& Rehabilitation{' '}
+      {' '}Designed by Experts for Genuine{' '}
       <span className="relative">
-        Supports
+        Recovery
         <svg className="absolute -bottom-2 left-0 w-full h-3 text-medical-300" viewBox="0 0 200 12" preserveAspectRatio="none">
           <path d="M0,8 Q100,0 200,8" stroke="currentColor" strokeWidth="4" fill="none" />
         </svg>
@@ -247,30 +247,35 @@ const HeroText = () => (
     </motion.h1>
 
     {/* Subheadline - Mobile: text-sm, Tablet: text-base, Desktop: text-lg */}
-    <motion.p 
+    <motion.p
       variants={fadeUpVariants}
       className="text-sm sm:text-base md:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 mb-6 sm:mb-8 leading-relaxed"
     >
-      Trusted medical-grade solutions designed for recovery, mobility, and patient comfort. 
-      Premium quality supports for healthcare professionals worldwide.
+      With nearly 30 years of working hand-in-hand with orthopedic surgeons, physiotherapists, and rehab specialists, we understand exactly what patients need to recover fully and safely.
+
     </motion.p>
 
     {/* Stats row */}
-    <motion.div 
+    <motion.div
       variants={fadeUpVariants}
       className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6 mb-6 sm:mb-8"
     >
       <div className="flex items-center space-x-2">
         <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-medical-500" />
-        <span className="text-xs sm:text-sm text-slate-600">24/7 Support</span>
+        <span className="text-xs sm:text-sm text-slate-600">24/7 Dedicated Patient Support</span>
       </div>
       <div className="flex items-center space-x-2">
         <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-medical-500" />
-        <span className="text-xs sm:text-sm text-slate-600">CE Certified</span>
+        <span className="text-xs sm:text-sm text-slate-600">CE Certiϐied Medical Devices</span>
       </div>
       <div className="flex items-center space-x-2">
         <Award className="w-4 h-4 sm:w-5 sm:h-5 text-medical-500" />
-        <span className="text-xs sm:text-sm text-slate-600">ISO 13485</span>
+        <span className="text-xs sm:text-sm text-slate-600">ISO 13485 Certiϐied Manufacturing
+        </span>
+      </div>
+      <div className="flex items-center space-x-2">
+        <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-medical-500" />
+        <span className="text-xs sm:text-sm text-slate-600">FDA Registered Orthopaedic Products</span>
       </div>
     </motion.div>
   </motion.div>
@@ -278,7 +283,7 @@ const HeroText = () => (
 
 // Hero buttons component
 const HeroButtons = () => (
-  <motion.div 
+  <motion.div
     variants={fadeUpVariants}
     initial="hidden"
     animate="visible"
@@ -292,7 +297,7 @@ const HeroButtons = () => (
       Explore Products
       <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
     </Link>
-    
+
     <Link
       to="/downloads"
       className="group inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white text-slate-700 border-2 border-slate-200 text-sm sm:text-base font-medium rounded-xl hover:border-medical-500 hover:text-medical-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
@@ -308,7 +313,7 @@ export default function HeroSection() {
   return (
     <section className="relative flex items-center pt-2 lg:pt-2 pb-8 sm:pb-10 md:pb-12 overflow-hidden">
       <BackgroundDecoration />
-      
+
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Text Content - Mobile: stacked, Tablet/Desktop: left side */}
@@ -318,7 +323,7 @@ export default function HeroSection() {
               <HeroButtons />
             </div>
           </div>
-          
+
           {/* Visual Content - Mobile: top, Tablet/Desktop: right side */}
           <div className="order-1 lg:order-2">
             <HeroVisual />

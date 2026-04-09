@@ -27,9 +27,9 @@ const footerLinks = {
 };
 
 const certifications = [
-  { name: 'ISO 13485', icon: Shield },
-  { name: 'CE Certified', icon: Award },
-  { name: 'FDA Registered', icon: Shield },
+  { name: 'ISO 13485 Certiϐied', icon: Shield },
+  { name: 'CE Marked Products', icon: Award },
+  { name: 'FDA Registered ', icon: Shield },
   { name: 'GMP Compliant', icon: Award },
 ];
 
@@ -90,7 +90,7 @@ export default function Footer() {
               </a>
               <div className="flex items-start space-x-3 text-slate-400">
                 <MapPin className="w-5 h-5 mt-0.5" />
-                <span>123 Medical District, Healthcare City<br />HC 12345, United States</span>
+                <span>123 Medical District, Healthcare City<br />HC 12345, USA</span>
               </div>
             </div>
           </div>

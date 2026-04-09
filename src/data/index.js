@@ -201,65 +201,65 @@ export const whyChooseUs = [
   {
     icon: Shield,
     title: 'Quality Manufacturing',
-    description: 'ISO 13485 certified manufacturing facilities with rigorous quality control processes ensuring every product meets medical-grade standards.',
+    description: 'Certiϐied ISO 13485 production ensures each orthopedic support meets strict quality standards from start to ϐinish.',
   },
   {
     icon: Award,
     title: 'Medical Grade Materials',
-    description: 'We use only hypoallergenic, breathable, and durable materials that are tested for biocompatibility and long-term comfort.',
+    description: 'Hypoallergenic, biocompatible fabrics designed for patient comfort during prolonged wear.',
   },
   {
     icon: Users,
-    title: 'Trusted by Professionals',
-    description: 'Our products are recommended by orthopedic surgeons, physiotherapists, and hospitals in over 50 countries worldwide.',
+    title: 'Recommended by Doctors',
+    description: 'Endorsed by orthopedic surgeons and physiotherapists in over 50 countries and countless clinics.',
   },
   {
     icon: Globe,
     title: 'Global Compliance',
-    description: 'CE marked, FDA registered, and compliant with international medical device regulations for complete peace of mind.',
+    description: 'CE marked, FDA registered, and GMP compliant medical products meeting worldwide regulatory standards.',
   },
 ];
 
 export const statistics = [
-  { value: '28+', label: 'Years Experience', suffix: '' },
-  { value: '500', label: 'Products', suffix: '+' },
-  { value: '50', label: 'Countries', suffix: '+' },
-  { value: '10000', label: 'Healthcare Partners', suffix: '+' },
+  { value: '28+', label: 'Years of Orthopedic Care Expertise ', suffix: '+' },
+  { value: '500', label: 'Trusted Orthopaedic Products', suffix: '+' },
+  { value: '50', label: 'Presence in Countries ', suffix: '+' },
+  { value: '10000', label: 'Orthopedic Partners Globally', suffix: '+' },
 ];
 
 export const companyTimeline = [
   {
     year: '1995',
     title: 'Company Founded',
-    description: 'OrthoCare was established with a vision to provide quality orthopedic solutions.',
+    description: 'Founded to supply clinically trusted orthopedic supports.',
   },
   {
     year: '2002',
     title: 'ISO Certification',
-    description: 'Achieved ISO 13485 certification for medical device quality management.',
+    description: 'Earned ISO 13485 certiϐication for medical device quality',
   },
   {
     year: '2008',
     title: 'Global Expansion',
-    description: 'Expanded operations to 25 countries across Europe and Asia.',
+    description: 'Expanded into 25 countries with regional compliance hubs.',
   },
   {
     year: '2015',
     title: 'R&D Center',
-    description: 'Opened state-of-the-art research and development facility.',
+    description: 'Launched R&D center for next-gen rehabilitation products.',
   },
-  {
+  { 
     year: '2022',
     title: 'Digital Transformation',
-    description: 'Launched digital platform for distributors and healthcare partners.',
+    description: 'Rolled out digital platform for easier ordering and partner support.',
   },
 ];
 
-export const certifications = [
-  { name: 'ISO 13485:2016', description: 'Medical Device Quality Management', icon: CheckCircle },
-  { name: 'CE Marking', description: 'European Conformity Certified', icon: Shield },
-  { name: 'FDA Registered', description: 'US Food & Drug Administration', icon: Award },
-  { name: 'GMP Compliant', description: 'Good Manufacturing Practice', icon: CheckCircle },
+export const certifications = [ 
+  { name: 'ISO 13485:2016 ', description: 'Quality Management', icon: CheckCircle },
+  { name: 'CE Marking', description: 'for European Markets', icon: Shield },
+  { name: 'FDA Registration', description: 'for US Standards', icon: Award },
+  { name: 'GMP', description: 'Compliance ', icon: CheckCircle },
 ];
 
 export const downloadFiles = [

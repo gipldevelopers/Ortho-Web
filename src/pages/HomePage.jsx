@@ -190,11 +190,10 @@ export default function HomePage() {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                Partner With Us for Quality Orthopaedic Solutions
+                Join Our Network of Orthopedic Healthcare Partners 
               </h2>
               <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
-                Join our network of distributors and healthcare partners. 
-                Access our complete product catalogue and exclusive partner benefits.
+                Become a trusted partner with full access to our product catalog, certiϐications, and industry-leading support from day one.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

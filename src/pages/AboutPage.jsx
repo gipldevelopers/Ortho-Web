@@ -8,22 +8,22 @@ const aboutFeatures = [
   {
     icon: Factory,
     title: 'State-of-the-Art Manufacturing',
-    description: 'Our 100,000 sq. ft. facility features clean room environments, automated production lines, and advanced quality testing laboratories.',
+    description: 'Advanced manufacturing space with climate control for consistent product quality',
   },
   {
     icon: Shield,
     title: 'Rigorous Quality Control',
-    description: 'Every product undergoes 15+ quality checkpoints, from raw material inspection to final packaging verification.',
+    description: '15+ quality checks on every item, from raw materials to packaging.',
   },
   {
     icon: Globe,
     title: 'Global Distribution Network',
-    description: 'We ship to 50+ countries with regional distribution centers ensuring fast delivery and local support.',
+    description: 'Distribution centers across three continents ensuring worldwide availability',
   },
   {
     icon: Zap,
     title: 'Continuous Innovation',
-    description: 'Our R&D team works with leading orthopaedic specialists to develop next-generation rehabilitation products.',
+    description: 'Dedicated R&D team collaborating with orthopedic specialists to innovate continuously.',
   },
 ];
 
@@ -31,22 +31,22 @@ const values = [
   {
     icon: Heart,
     title: 'Patient First',
-    description: 'Every product is designed with patient comfort, recovery, and long-term health in mind.',
+    description: ' Designs centered on effective recovery',
   },
   {
     icon: Target,
     title: 'Excellence',
-    description: 'We pursue excellence in manufacturing, service, and every aspect of our business.',
+    description: 'Consistent quality across every product.',
   },
   {
     icon: Shield,
     title: 'Integrity',
-    description: 'Honest, transparent business practices form the foundation of our partnerships.',
+    description: 'Transparent pricing and timelines.',
   },
   {
     icon: Users,
     title: 'Collaboration',
-    description: 'We work closely with healthcare professionals to understand and meet real-world needs.',
+    description: 'Built with clinicians for real-world success.',
   },
 ];
 
@@ -62,26 +62,26 @@ export default function AboutPage() {
               animate={{ opacity: 1, y: 0 }}
               className="inline-block px-4 py-1.5 bg-medical-100 text-medical-700 rounded-full text-sm font-medium mb-6"
             >
-              About OrthoCare
+              About OrthoCare 
             </motion.span>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6"
-            >
-              Leading the Future of{' '}
-              <span className="gradient-text">Orthopaedic Care</span>
-            </motion.h1>
+            > Trusted 
+              <span className="gradient-text"> Orthopedic Solutions </span>
+                 for Nearly 30 Years {' '}
+              
+            </motion.h1> 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
               className="text-lg text-slate-600 leading-relaxed"
             >
-              Since 1995, OrthoCare has been at the forefront of orthopaedic and rehabilitation product innovation. 
-              Our commitment to quality, backed by ISO 13485 certification and CE marking, has made us a trusted 
-              partner for healthcare providers worldwide.
+              Since 1995, Ortho Care has partnered with leading surgeons, physiotherapists, and rehab experts to develop orthopedic supports that deliver realworld results. ISO 13485 certiϐied, CE marked, and FDA registered, our products serve 50+ countries with over 500 solutions trusted by 10,000+ healthcare professionals globally. 
+
             </motion.p>
           </div>
         </div>
@@ -102,9 +102,7 @@ export default function AboutPage() {
                 centered={false}
               />
               <p className="text-slate-600 mb-8 leading-relaxed">
-                Our manufacturing facility combines cutting-edge technology with skilled craftsmanship. 
-                From automated cutting systems to precision sewing stations, every step is optimized 
-                for quality and consistency.
+                Our 100,000 sq. ft. facility features automated cutting and precision sewing in clean-room environments to produce orthopedic supports that meet stringent quality demands at scale.
               </p>
               
               <div className="grid grid-cols-2 gap-4 sm:gap-6">
@@ -121,7 +119,7 @@ export default function AboutPage() {
                       <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-medical-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-slate-900 text-sm sm:text-base mb-1 line-clamp-1">{feature.title}</h4>
+                      {/* <h4 className="font-semibold text-slate-900 text-sm sm:text-base mb-1 line-clamp-1">{feature.title}</h4> */}
                       <p className="text-[11px] sm:text-sm text-slate-500 line-clamp-2">{feature.description}</p>
                     </div>
                   </motion.div>
@@ -137,7 +135,7 @@ export default function AboutPage() {
             >
               <div className="grid grid-cols-2 gap-4">
                 <img
-                  src="https://images.unsplash.com/photo-1581093458791-9d42e3c7e117?w=400&h=400&fit=crop"
+                  src="/about/Manufacturing Facility copy.avif"
                   alt="Manufacturing Facility"
                   className="rounded-2xl shadow-lg"
                 />
@@ -166,7 +164,7 @@ export default function AboutPage() {
       <section className="py-12 gradient-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionTitle
-            title="Our Journey"
+            title="Our Milestones"
           />
           
           <div className="relative">
@@ -210,8 +208,7 @@ export default function AboutPage() {
       <section id="certifications" className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionTitle
-            title="Certifications & Compliance"
-            subtitle="Quality Assurance"
+            title="Certiϐied Quality You Can Trust"
           />
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
@@ -252,9 +249,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 sm:mb-4">Our Mission</h3>
               <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                To improve patient outcomes and quality of life through innovative, comfortable, 
-                and effective orthopaedic solutions. We are committed to making rehabilitation 
-                accessible to all, regardless of geography or economic status.
+                Make recovery accessible and effective worldwide, with products designed to enhance real patient outcomes. 
               </p>
             </motion.div>
             
@@ -269,9 +264,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 sm:mb-4">Our Vision</h3>
               <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                To be the global leader in orthopaedic and rehabilitation products, recognized 
-                for innovation, quality, and patient-centric design. We envision a world where 
-                everyone has access to premium recovery support.
+                Become the most trusted name in orthopedic supports, ensuring every patient has access to quality recovery aids. 
               </p>
             </motion.div>
           </div>
@@ -282,7 +275,7 @@ export default function AboutPage() {
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionTitle
-            title="Our Core Values"
+            title="Our Commitment to Care "
           />
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
