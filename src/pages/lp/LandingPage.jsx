@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { buildApiUrl } from '../../config/api';
 
 const CATALOG_PATH = '/catalog/IGR_E_CATELOGUE_2026_EMAIL.pdf';
+const TOLL_FREE_NUMBER = '1800 309 3924';
+const TOLL_FREE_LINK = '18003093924';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -64,8 +66,22 @@ export default function LandingPage() {
                 <Download className="h-5 w-5" />
                 Download Catalogue
               </button>
-              
             </div>
+
+            <a
+              href={`tel:${TOLL_FREE_LINK}`}
+              className="mt-6 inline-flex items-center gap-3 rounded-2xl border border-medical-200 bg-white/80 px-5 py-4 text-slate-800 shadow-sm backdrop-blur-sm transition-colors hover:border-medical-400 hover:bg-white"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-medical-100 text-medical-700">
+                <Phone className="h-5 w-5" />
+              </span>
+              <span>
+                <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Toll Free
+                </span>
+                <span className="block text-lg font-bold text-slate-900">{TOLL_FREE_NUMBER}</span>
+              </span>
+            </a>
 
             {/* <div className="mt-10 grid sm:grid-cols-2 gap-4">
               {[
