@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, MessageCircle, Download, Check, Info, FileText, Package, Ruler, Heart, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageCircle, Download, Check, Info, FileText, Package, Ruler, Heart, Share2, PlayCircle } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { featuredProducts } from '../data';
 import Button from '../components/Button';
@@ -27,10 +27,18 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('description');
   const [selectedImage, setSelectedImage] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [isThumbDragging, setIsThumbDragging] = useState(false);
   const [product, setProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const { toggleSaved, savedItems, addToEnquiry } = useAppContext();
+  const thumbTrackRef = useRef(null);
+  const thumbDragRef = useRef({
+    isDragging: false,
+    startX: 0,
+    scrollLeft: 0,
+  });
   
   useEffect(() => {
     let isMounted = true;
@@ -257,7 +265,64 @@ export default function ProductDetailPage() {
           const images = Array.isArray(product.images) && product.images.length > 0
             ? product.images
             : [product.image].filter(Boolean);
-          const activeImage = images[selectedImage] || images[0] || product.image;
+          const videos = Array.isArray(product.videos) && product.videos.length > 0
+            ? product.videos
+            : [product.video || product.videoUrl].filter(Boolean);
+          const mediaItems = [
+            ...images.map((url, index) => ({
+              key: `image-${index}-${url}`,
+              type: 'image',
+              url,
+            })),
+            ...videos.map((url, index) => ({
+              key: `video-${index}-${url}`,
+              type: 'video',
+              url,
+            })),
+          ];
+          const activeMedia = mediaItems[selectedImage] || mediaItems[0] || null;
+          const hasMultipleMedia = mediaItems.length > 1;
+          const goToPreviousMedia = () => {
+            setSelectedImage((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
+          };
+          const goToNextMedia = () => {
+            setSelectedImage((prev) => (prev + 1) % mediaItems.length);
+          };
+          const handleMediaTouchStart = (event) => {
+            const touchX = event.changedTouches?.[0]?.clientX;
+            setTouchStartX(typeof touchX === 'number' ? touchX : null);
+          };
+          const handleMediaTouchEnd = (event) => {
+            if (touchStartX === null || mediaItems.length <= 1) return;
+            const touchEndX = event.changedTouches?.[0]?.clientX;
+            if (typeof touchEndX !== 'number') return;
+            const delta = touchEndX - touchStartX;
+            if (Math.abs(delta) < 40) return;
+            if (delta < 0) {
+              goToNextMedia();
+            } else {
+              goToPreviousMedia();
+            }
+            setTouchStartX(null);
+          };
+          const handleThumbMouseDown = (event) => {
+            if (!thumbTrackRef.current) return;
+            thumbDragRef.current.isDragging = true;
+            thumbDragRef.current.startX = event.pageX - thumbTrackRef.current.offsetLeft;
+            thumbDragRef.current.scrollLeft = thumbTrackRef.current.scrollLeft;
+            setIsThumbDragging(true);
+          };
+          const handleThumbMouseMove = (event) => {
+            if (!thumbDragRef.current.isDragging || !thumbTrackRef.current) return;
+            event.preventDefault();
+            const x = event.pageX - thumbTrackRef.current.offsetLeft;
+            const walk = (x - thumbDragRef.current.startX) * 1.2;
+            thumbTrackRef.current.scrollLeft = thumbDragRef.current.scrollLeft - walk;
+          };
+          const stopThumbDragging = () => {
+            thumbDragRef.current.isDragging = false;
+            setIsThumbDragging(false);
+          };
 
           return (
             <div className="grid lg:grid-cols-12 gap-12">
@@ -266,30 +331,102 @@ export default function ProductDetailPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="aspect-square bg-slate-100 rounded-3xl overflow-hidden shadow-inner border border-slate-100"
+              className="relative aspect-square bg-slate-100 rounded-3xl overflow-hidden shadow-inner border border-slate-100"
+              onTouchStart={handleMediaTouchStart}
+              onTouchEnd={handleMediaTouchEnd}
             >
-              <img
-                src={activeImage}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-            {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-4">
-                {images.map((imageUrl, i) => (
+              {activeMedia?.type === 'video' ? (
+                <video
+                  src={activeMedia.url}
+                  controls
+                  preload="metadata"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={activeMedia?.url || product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              )}
+
+              {hasMultipleMedia && (
+                <>
                   <button
-                    key={imageUrl || i}
+                    type="button"
+                    onClick={goToPreviousMedia}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-slate-700 shadow hover:bg-white transition"
+                    aria-label="Previous media"
+                  >
+                    <ChevronLeft className="w-5 h-5 mx-auto" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goToNextMedia}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-slate-700 shadow hover:bg-white transition"
+                    aria-label="Next media"
+                  >
+                    <ChevronRight className="w-5 h-5 mx-auto" />
+                  </button>
+                </>
+              )}
+            </motion.div>
+
+            {mediaItems.length > 1 && (
+              <div
+                ref={thumbTrackRef}
+                className={`flex gap-3 overflow-x-auto scrollbar-hide pb-1 select-none ${
+                  isThumbDragging ? 'cursor-grabbing' : 'cursor-grab'
+                }`}
+                onMouseDown={handleThumbMouseDown}
+                onMouseMove={handleThumbMouseMove}
+                onMouseUp={stopThumbDragging}
+                onMouseLeave={stopThumbDragging}
+              >
+                {mediaItems.map((mediaItem, i) => (
+                  <button
+                    key={mediaItem.key}
+                    type="button"
                     onClick={() => setSelectedImage(i)}
-                    className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all ${
+                    className={`relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all ${
                       selectedImage === i ? 'border-medical-500 bg-medical-50' : 'border-transparent bg-slate-50'
                     }`}
                   >
-                    <img
-                      src={imageUrl}
-                      alt={`${product.name} view ${i + 1}`}
-                      className="w-full h-full object-cover opacity-80 hover:opacity-100"
-                    />
+                    {mediaItem.type === 'video' ? (
+                      <>
+                        <video
+                          src={mediaItem.url}
+                          preload="metadata"
+                          muted
+                          className="w-full h-full object-cover opacity-85"
+                        />
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <PlayCircle className="w-6 h-6 text-white drop-shadow" />
+                        </span>
+                      </>
+                    ) : (
+                      <img
+                        src={mediaItem.url}
+                        alt={`${product.name} media ${i + 1}`}
+                        className="w-full h-full object-cover opacity-85 hover:opacity-100"
+                      />
+                    )}
                   </button>
+                ))}
+              </div>
+            )}
+            {mediaItems.length > 1 && (
+              <div className="flex items-center justify-center gap-2 pt-1">
+                {mediaItems.map((mediaItem, i) => (
+                  <button
+                    key={`dot-${mediaItem.key}`}
+                    type="button"
+                    onClick={() => setSelectedImage(i)}
+                    aria-label={`Go to media ${i + 1}`}
+                    className={`h-2.5 rounded-full transition-all ${
+                      selectedImage === i ? 'w-6 bg-medical-500' : 'w-2.5 bg-slate-300 hover:bg-slate-400'
+                    }`}
+                  />
                 ))}
               </div>
             )}
