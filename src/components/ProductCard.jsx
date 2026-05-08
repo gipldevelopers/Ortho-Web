@@ -19,7 +19,7 @@ export default function ProductCard({ product, index = 0 }) {
       className="group bg-white rounded-2xl card-shadow overflow-hidden hover:card-shadow-hover transition-all duration-300"
     >
       {/* Image Container */}
-      <Link to={`/products/${product.id}`} className="relative aspect-square overflow-hidden bg-slate-100 block">
+      <Link to={`/products/${product.id}`} className="relative aspect-[4/3] overflow-hidden bg-slate-100 block">
         <motion.img
           src={product.image}
           alt={product.name}
@@ -89,6 +89,23 @@ export default function ProductCard({ product, index = 0 }) {
           {product.name}
         </h3>
         <p className="text-[10px] sm:text-sm text-slate-400 mb-2">{product.code}</p>
+        
+        {/* Tags/Features */}
+        {(product.features || product.indications) && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {(product.features || product.indications).slice(0, 2).map((tag, i) => (
+              <span key={i} className="px-1.5 py-0.5 bg-slate-50 text-slate-500 text-[9px] sm:text-[10px] rounded border border-slate-100 truncate max-w-[100px]">
+                {tag}
+              </span>
+            ))}
+            {(product.features || product.indications).length > 2 && (
+              <span className="text-[9px] sm:text-[10px] text-slate-400 self-center">
+                +{(product.features || product.indications).length - 2} more
+              </span>
+            )}
+          </div>
+        )}
+
         <p className="hidden sm:block text-sm text-slate-600 mb-4 line-clamp-2">{product.description}</p>
         
         <div className="flex flex-col sm:flex-row gap-2">

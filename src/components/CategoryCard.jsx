@@ -26,20 +26,28 @@ export default function CategoryCard({ category, index = 0 }) {
           
           {/* Content */}
           <div className="relative z-10">
-            {/* Icon */}
-            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-medical-100 to-medical-200 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 overflow-hidden">
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={title}
-                  className="w-full h-full object-cover"
-                />
-              ) : Icon ? (
-                <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-medical-600" />
-              ) : (
-                <span className="text-medical-700 font-semibold text-lg sm:text-xl">
-                  {fallbackLetter}
-                </span>
+            {/* Icon & Count */}
+            <div className="flex items-start justify-between mb-4 sm:mb-6">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-medical-100 to-medical-200 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 overflow-hidden shadow-sm">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : Icon ? (
+                  <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-medical-600" />
+                ) : (
+                  <span className="text-medical-700 font-semibold text-lg sm:text-xl">
+                    {fallbackLetter}
+                  </span>
+                )}
+              </div>
+              
+              {category.productCount > 0 && (
+                <div className="px-2.5 py-1 bg-slate-50 text-slate-500 text-[10px] sm:text-xs font-semibold rounded-lg border border-slate-100 group-hover:bg-medical-50 group-hover:text-medical-600 group-hover:border-medical-100 transition-colors">
+                  {category.productCount} Items
+                </div>
               )}
             </div>
             
@@ -55,7 +63,7 @@ export default function CategoryCard({ category, index = 0 }) {
             
             {/* Link */}
             <div className="flex items-center text-medical-600 font-medium text-sm group-hover:translate-x-2 transition-transform duration-300">
-              <span>Explore Products</span>
+              <span className="border-b-2 border-transparent group-hover:border-medical-200">Explore Products</span>
               <ArrowRight className="w-4 h-4 ml-2" />
             </div>
           </div>

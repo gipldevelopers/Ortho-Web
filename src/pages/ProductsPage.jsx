@@ -14,6 +14,7 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [bodyPartOptions, setBodyPartOptions] = useState(defaultBodyParts);
+  const [categories, setCategories] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
     bodyPart: [],
     category: [],
@@ -25,6 +26,27 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useState('grid');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(buildApiUrl('categories'));
+        const data = await response.json();
+        if (isMounted && data.success && Array.isArray(data.data)) {
+          setCategories(data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
+      }
+    };
+
+    fetchCategories();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -119,6 +141,14 @@ export default function ProductsPage() {
     [products]
   );
 
+  const activeCategory = useMemo(() => {
+    if (selectedFilters.category.length === 1) {
+      const catName = selectedFilters.category[0];
+      return categories.find(c => c.name === catName);
+    }
+    return null;
+  }, [selectedFilters.category, categories]);
+
   const filters = useMemo(
     () => ({
       bodyPart: bodyPartOptions,
@@ -176,26 +206,61 @@ export default function ProductsPage() {
   });
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen">
       {/* Header */}
-      <section className="py-16 gradient-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionTitle
-            title="Product Catalogue"
-            subtitle="All Products"
-          />
+      <section className="pt-24 lg:pt-[124px] pb-12 sm:pb-16 gradient-bg relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-medical-100/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-medical-100/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {activeCategory ? (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col md:flex-row items-center gap-8 md:gap-12"
+            >
+              {activeCategory.imageUrl && (
+                <div className="w-full md:w-1/3 aspect-[4/3] rounded-3xl overflow-hidden card-shadow-hover relative group">
+                  <img 
+                    src={activeCategory.imageUrl} 
+                    alt={activeCategory.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                </div>
+              )}
+              <div className="flex-1 text-center md:text-left">
+                <div className="inline-block px-4 py-1.5 bg-medical-100 text-medical-700 rounded-full text-sm font-semibold mb-4">
+                  Category
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
+                  {activeCategory.name}
+                </h1>
+                <p className="text-lg text-slate-600 mb-8 leading-relaxed max-w-2xl">
+                  {activeCategory.description || `Discover our professional range of ${activeCategory.name.toLowerCase()} designed for optimal support and recovery.`}
+                </p>
+                
+                {/* Quick stats for category */}
+                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                  <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 text-sm">
+                    <span className="font-bold text-medical-600">{filteredProducts.length}</span> Products
+                  </div>
+                  <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 text-sm">
+                    Medical Grade
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <div className="text-center">
+              <SectionTitle
+                title="Product Catalogue"
+                subtitle={searchQuery ? `Search results for "${searchQuery}"` : "All Products"}
+              />
+            </div>
+          )}
           
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-white rounded-xl border border-slate-200 focus:border-medical-500 focus:ring-2 focus:ring-medical-200 outline-none transition-all"
-            />
-          </div>
         </div>
       </section>
 
@@ -205,14 +270,6 @@ export default function ProductsPage() {
           {/* Toolbar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setMobileFiltersOpen(true)}
-                className="lg:hidden flex items-center space-x-2 px-4 py-2 bg-slate-100 rounded-lg text-slate-700"
-              >
-                <Filter className="w-5 h-5" />
-                <span>Filters</span>
-              </button>
-              
               <span className="text-slate-500">
                 {isLoading ? 'Loading products...' : `Showing ${filteredProducts.length} products`}
               </span>
@@ -242,258 +299,26 @@ export default function ProductsPage() {
             </div>
           )}
 
-          <div className="flex gap-8">
-            {/* Sidebar Filters - Desktop */}
-            <aside className="hidden lg:block w-64 flex-shrink-0">
-              <div className="sticky top-24 space-y-8">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-slate-900">Filters</h3>
-                  <button
-                    onClick={clearFilters}
-                    className="text-sm text-medical-600 hover:text-medical-700"
-                  >
-                    Clear all
-                  </button>
-                </div>
-
-                {/* Body Part Filter */}
-                <div>
-                  <h4 className="font-medium text-slate-900 mb-4">Body Part</h4>
-                  <div className="space-y-2">
-                    {filters.bodyPart.map((option) => (
-                      <label key={option} className="flex items-center space-x-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.bodyPart.includes(option)}
-                          onChange={() => toggleFilter('bodyPart', option)}
-                          className="w-4 h-4 text-medical-600 border-slate-300 rounded focus:ring-medical-500"
-                        />
-                        <span className="text-slate-600">{option}</span>
-                      </label>
-                    ))}
+          {/* Product Grid */}
+          <div className="w-full">
+            {isLoading ? (
+              <div className="py-12 text-center text-slate-500">Loading products...</div>
+            ) : (
+              <div className={`grid gap-6 sm:gap-8 ${
+                viewMode === 'grid' 
+                  ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' 
+                  : 'grid-cols-1'
+              }`}>
+                {filteredProducts.map((product, index) => (
+                  <ProductCard key={product.id} product={product} index={index} />
+                ))}
+                {filteredProducts.length === 0 && (
+                  <div className="col-span-full py-12 text-center border-2 border-dashed border-slate-200 rounded-2xl">
+                    <p className="text-slate-500">No products found matching your criteria.</p>
                   </div>
-                </div>
-
-                {/* Category Filter */}
-                <div>
-                  <h4 className="font-medium text-slate-900 mb-4">Category</h4>
-                  <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                    {filters.category.map((option) => (
-                      <label key={option} className="flex items-center space-x-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.category.includes(option)}
-                          onChange={() => toggleFilter('category', option)}
-                          className="w-4 h-4 text-medical-600 border-slate-300 rounded focus:ring-medical-500"
-                        />
-                        <span className="text-slate-600">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Support Level Filter */}
-                <div>
-                  <h4 className="font-medium text-slate-900 mb-4">Support Level</h4>
-                  <div className="space-y-2">
-                    {filters.supportLevel.map((option) => (
-                      <label key={option} className="flex items-center space-x-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.supportLevel.includes(option)}
-                          onChange={() => toggleFilter('supportLevel', option)}
-                          className="w-4 h-4 text-medical-600 border-slate-300 rounded focus:ring-medical-500"
-                        />
-                        <span className="text-slate-600">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Usage Filter */}
-                <div>
-                  <h4 className="font-medium text-slate-900 mb-4">Usage</h4>
-                  <div className="space-y-2">
-                    {filters.usage.map((option) => (
-                      <label key={option} className="flex items-center space-x-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.usage.includes(option)}
-                          onChange={() => toggleFilter('usage', option)}
-                          className="w-4 h-4 text-medical-600 border-slate-300 rounded focus:ring-medical-500"
-                        />
-                        <span className="text-slate-600">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Badge Filter */}
-                <div>
-                  <h4 className="font-medium text-slate-900 mb-4">Badge</h4>
-                  <div className="space-y-2">
-                    {filters.badge.map((option) => (
-                      <label key={option} className="flex items-center space-x-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.badge.includes(option)}
-                          onChange={() => toggleFilter('badge', option)}
-                          className="w-4 h-4 text-medical-600 border-slate-300 rounded focus:ring-medical-500"
-                        />
-                        <span className="text-slate-600">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                )}
               </div>
-            </aside>
-
-            {/* Mobile Filters */}
-            {mobileFiltersOpen && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 lg:hidden"
-              >
-                <div className="absolute inset-0 bg-black/50" onClick={() => setMobileFiltersOpen(false)} />
-                <motion.div
-                  initial={{ x: '100%' }}
-                  animate={{ x: 0 }}
-                  exit={{ x: '100%' }}
-                  className="absolute right-0 top-0 bottom-0 w-80 bg-white overflow-y-auto"
-                >
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="font-semibold text-lg">Filters</h3>
-                      <button onClick={() => setMobileFiltersOpen(false)}>
-                        <X className="w-6 h-6" />
-                      </button>
-                    </div>
-                    
-                    {/* Same filter content */}
-                    <div className="space-y-8">
-                      <div>
-                        <h4 className="font-medium text-slate-900 mb-4">Body Part</h4>
-                        <div className="space-y-2">
-                          {filters.bodyPart.map((option) => (
-                            <label key={option} className="flex items-center space-x-3">
-                              <input
-                                type="checkbox"
-                                checked={selectedFilters.bodyPart.includes(option)}
-                                onChange={() => toggleFilter('bodyPart', option)}
-                                className="w-4 h-4 text-medical-600 border-slate-300 rounded"
-                              />
-                              <span className="text-slate-600">{option}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-medium text-slate-900 mb-4">Category</h4>
-                        <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                          {filters.category.map((option) => (
-                            <label key={option} className="flex items-center space-x-3">
-                              <input
-                                type="checkbox"
-                                checked={selectedFilters.category.includes(option)}
-                                onChange={() => toggleFilter('category', option)}
-                                className="w-4 h-4 text-medical-600 border-slate-300 rounded"
-                              />
-                              <span className="text-slate-600">{option}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                       
-                      <div>
-                        <h4 className="font-medium text-slate-900 mb-4">Support Level</h4>
-                        <div className="space-y-2">
-                          {filters.supportLevel.map((option) => (
-                            <label key={option} className="flex items-center space-x-3">
-                              <input
-                                type="checkbox"
-                                checked={selectedFilters.supportLevel.includes(option)}
-                                onChange={() => toggleFilter('supportLevel', option)}
-                                className="w-4 h-4 text-medical-600 border-slate-300 rounded"
-                              />
-                              <span className="text-slate-600">{option}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-slate-900 mb-4">Usage</h4>
-                        <div className="space-y-2">
-                          {filters.usage.map((option) => (
-                            <label key={option} className="flex items-center space-x-3">
-                              <input
-                                type="checkbox"
-                                checked={selectedFilters.usage.includes(option)}
-                                onChange={() => toggleFilter('usage', option)}
-                                className="w-4 h-4 text-medical-600 border-slate-300 rounded"
-                              />
-                              <span className="text-slate-600">{option}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-medium text-slate-900 mb-4">Badge</h4>
-                        <div className="space-y-2">
-                          {filters.badge.map((option) => (
-                            <label key={option} className="flex items-center space-x-3">
-                              <input
-                                type="checkbox"
-                                checked={selectedFilters.badge.includes(option)}
-                                onChange={() => toggleFilter('badge', option)}
-                                className="w-4 h-4 text-medical-600 border-slate-300 rounded"
-                              />
-                              <span className="text-slate-600">{option}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <button
-                      onClick={clearFilters}
-                      className="w-full mt-8 py-3 border-2 border-slate-200 rounded-xl font-medium text-slate-600"
-                    >
-                      Clear All Filters
-                    </button>
-                  </div>
-                </motion.div>
-              </motion.div>
             )}
-
-            {/* Product Grid */}
-            <div className="flex-1">
-              {isLoading ? (
-                <div className="py-12 text-center text-slate-500">Loading products...</div>
-              ) : (
-                <div className={`grid gap-4 sm:gap-6 ${
-                  viewMode === 'grid' 
-                    ? 'grid-cols-2 sm:grid-cols-2 xl:grid-cols-3' 
-                    : 'grid-cols-1'
-                }`}>
-                  {filteredProducts.map((product, index) => (
-                    <ProductCard key={product.id} product={product} index={index} />
-                  ))}
-                  {filteredProducts.length === 0 && (
-                    <div className="col-span-full py-12 text-center border-2 border-dashed border-slate-200 rounded-2xl">
-                      <p className="text-slate-500">No products found matching your criteria.</p>
-                      <button onClick={clearFilters} className="text-medical-600 hover:text-medical-700 font-medium mt-2">
-                        Clear all filters
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </section>
