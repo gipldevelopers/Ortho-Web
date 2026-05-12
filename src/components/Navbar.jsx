@@ -24,6 +24,15 @@ const defaultBodyPartItems = [
   { name: "Upper Limb", href: "/products?nav=bodyPart&bodyPart=Shoulder&title=Upper%20Limb" },
 ];
 
+const defaultActivityItems = [
+  { name: "Sports & Athletics", href: "/products?nav=activity&usage=Sports%20%26%20Athletics&title=Sports%20%26%20Athletics" },
+  { name: "Daily Use", href: "/products?nav=activity&usage=Daily%20Use&type=Daily&title=Daily%20Use" },
+  { name: "Post-Surgery", href: "/products?nav=activity&usage=Post-Surgery&title=Post-Surgery" },
+  { name: "Elderly Care", href: "/products?nav=activity&usage=Elderly%20Care&title=Elderly%20Care" },
+  { name: "Pediatric", href: "/products?nav=activity&usage=Pediatric&type=Pediatric&title=Pediatric" },
+  { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Workplace%20Ergonomics&type=Ergonomics&title=Workplace%20Ergonomics" },
+];
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,6 +43,7 @@ export default function Navbar() {
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [trendingProducts] = useState(featuredProducts.slice(0, 3));
   const [bodyPartItems, setBodyPartItems] = useState(defaultBodyPartItems);
+  const [activityItems, setActivityItems] = useState(defaultActivityItems);
   
   const { user, logout, cartCount, wishlistCount } = useAppContext();
   const location = useLocation();
@@ -65,14 +75,7 @@ export default function Navbar() {
       megaMenu: [
         {
           title: "By Activity",
-          items: [
-            { name: "Sports & Athletics", href: "/products?nav=activity&usage=Sports%20%26%20Athletics&title=Sports%20%26%20Athletics" },
-            { name: "Daily Use", href: "/products?nav=activity&usage=Daily%20Use&type=Daily&title=Daily%20Use" },
-            { name: "Post-Surgery", href: "/products?nav=activity&usage=Post-Surgery&title=Post-Surgery" },
-            { name: "Elderly Care", href: "/products?nav=activity&usage=Elderly%20Care&title=Elderly%20Care" },
-            { name: "Pediatric", href: "/products?nav=activity&usage=Pediatric&type=Pediatric&title=Pediatric" },
-            { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Workplace%20Ergonomics&type=Ergonomics&title=Workplace%20Ergonomics" },
-          ],
+          items: activityItems,
         },
       ],
     },
@@ -167,6 +170,37 @@ export default function Navbar() {
     };
 
     fetchBodyParts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchActivities = async () => {
+      try {
+        const response = await fetch(buildApiUrl('activities'));
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || "Unable to load activities.");
+        }
+
+        const items = data.data.map((item) => ({
+          name: item.name,
+          href: `/products?nav=activity&usage=${encodeURIComponent(item.name)}&title=${encodeURIComponent(item.name)}`,
+        }));
+
+        if (isMounted && items.length > 0) {
+          setActivityItems(items);
+        }
+      } catch (err) {
+        // Keep defaults on failure.
+      }
+    };
+
+    fetchActivities();
     return () => {
       isMounted = false;
     };
