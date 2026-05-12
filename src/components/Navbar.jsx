@@ -66,12 +66,12 @@ export default function Navbar() {
         {
           title: "By Activity",
           items: [
-            { name: "Sports & Athletics", href: "/products?nav=activity&usage=Sports&title=Sports%20%26%20Athletics" },
-            { name: "Daily Use", href: "/products?nav=activity&usage=Daily%20Support&type=Daily&title=Daily%20Use" },
-            { name: "Post-Surgery", href: "/products?nav=activity&usage=Post-Surgical&title=Post-Surgery" },
-            { name: "Elderly Care", href: "/products?nav=activity&usage=Rehabilitation&title=Elderly%20Care" },
-            { name: "Pediatric", href: "/products?nav=activity&usage=Daily%20Support&type=Pediatric&title=Pediatric" },
-            { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Daily%20Support&type=Ergonomics&title=Workplace%20Ergonomics" },
+            { name: "Sports & Athletics", href: "/products?nav=activity&usage=Sports%20%26%20Athletics&title=Sports%20%26%20Athletics" },
+            { name: "Daily Use", href: "/products?nav=activity&usage=Daily%20Use&type=Daily&title=Daily%20Use" },
+            { name: "Post-Surgery", href: "/products?nav=activity&usage=Post-Surgery&title=Post-Surgery" },
+            { name: "Elderly Care", href: "/products?nav=activity&usage=Elderly%20Care&title=Elderly%20Care" },
+            { name: "Pediatric", href: "/products?nav=activity&usage=Pediatric&type=Pediatric&title=Pediatric" },
+            { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Workplace%20Ergonomics&type=Ergonomics&title=Workplace%20Ergonomics" },
           ],
         },
       ],
@@ -84,7 +84,7 @@ export default function Navbar() {
         {
           title: "By Support Type",
           items: [
-            { name: "Compression Products", href: "/products?nav=dailySupport&usage=Daily%20Support&type=Compression&title=Compression%20Products" },
+            { name: "Compression Products", href: "/products?nav=dailySupport&usage=Daily%20Use&type=Compression&title=Compression%20Products" },
             { name: "Braces & Supports", href: "/products?nav=dailySupport&usage=Prevention&title=Braces%20%26%20Supports" },
             { name: "Therapy & Mobility", href: "/products?nav=dailySupport&usage=Rehabilitation&title=Therapy%20%26%20Mobility" },
             { name: "Posture Correctors", href: "/products?nav=dailySupport&bodyPart=Neck&type=Posture&title=Posture%20Correctors" },
