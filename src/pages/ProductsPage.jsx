@@ -17,6 +17,7 @@ export default function ProductsPage() {
   const [bodyParts, setBodyParts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [supports, setSupports] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
     bodyPart: [],
     category: [],
@@ -138,6 +139,28 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const fetchSupports = async () => {
+      try {
+        const response = await fetch(buildApiUrl('supports'));
+        const data = await response.json();
+
+        if (isMounted && data.success && Array.isArray(data.data)) {
+          setSupports(data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch supports:', err);
+      }
+    };
+
+    fetchSupports();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const bodyPartParam = params.get('bodyPart');
     const usageParam = params.get('usage');
@@ -185,15 +208,26 @@ export default function ProductsPage() {
       
       return bp ? { ...bp, name: urlTitle || bp.name, type: 'Body Part' } : { name: urlTitle || bpName, type: 'Body Part' };
     }
-    // Priority 3: Usage/Activity
+    // Priority 3: Daily Support (Check this first if we are in the dailySupport nav)
+    if (selectedFilters.usage.length === 1 && location.search.includes('nav=dailySupport')) {
+      const usageName = selectedFilters.usage[0];
+      const support = supports.find(s => s.name === usageName);
+      
+      if (support) {
+        return { ...support, name: urlTitle || support.name, type: 'Daily Support' };
+      }
+    }
+
+    // Priority 4: Usage/Activity
     if (selectedFilters.usage.length === 1) {
       const usageName = selectedFilters.usage[0];
       const activity = activities.find(a => a.name === usageName);
       
       return activity ? { ...activity, name: urlTitle || activity.name, type: 'Activity' } : { name: urlTitle || usageName, type: 'Activity' };
     }
+
     return null;
-  }, [selectedFilters, categories, bodyParts, activities, location.search]);
+  }, [selectedFilters, categories, bodyParts, activities, supports, location.search]);
 
   const filters = useMemo(
     () => ({

@@ -33,6 +33,15 @@ const defaultActivityItems = [
   { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Workplace%20Ergonomics&type=Ergonomics&title=Workplace%20Ergonomics" },
 ];
 
+const defaultSupportItems = [
+  { name: "Compression Products", href: "/products?nav=dailySupport&usage=Daily%20Use&type=Compression&title=Compression%20Products" },
+  { name: "Braces & Supports", href: "/products?nav=dailySupport&usage=Prevention&title=Braces%20%26%20Supports" },
+  { name: "Therapy & Mobility", href: "/products?nav=dailySupport&usage=Rehabilitation&title=Therapy%20%26%20Mobility" },
+  { name: "Posture Correctors", href: "/products?nav=dailySupport&bodyPart=Neck&type=Posture&title=Posture%20Correctors" },
+  { name: "Splints & Immobilizers", href: "/products?nav=dailySupport&usage=Post-Surgical&title=Splints%20%26%20Immobilizers" },
+  { name: "Hot & Cold Therapy", href: "/products?nav=dailySupport&usage=Rehabilitation&type=Therapy&title=Hot%20%26%20Cold%20Therapy" },
+];
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -44,6 +53,7 @@ export default function Navbar() {
   const [trendingProducts] = useState(featuredProducts.slice(0, 3));
   const [bodyPartItems, setBodyPartItems] = useState(defaultBodyPartItems);
   const [activityItems, setActivityItems] = useState(defaultActivityItems);
+  const [supportItems, setSupportItems] = useState(defaultSupportItems);
   
   const { user, logout, cartCount, wishlistCount } = useAppContext();
   const location = useLocation();
@@ -86,14 +96,7 @@ export default function Navbar() {
       megaMenu: [
         {
           title: "By Support Type",
-          items: [
-            { name: "Compression Products", href: "/products?nav=dailySupport&usage=Daily%20Use&type=Compression&title=Compression%20Products" },
-            { name: "Braces & Supports", href: "/products?nav=dailySupport&usage=Prevention&title=Braces%20%26%20Supports" },
-            { name: "Therapy & Mobility", href: "/products?nav=dailySupport&usage=Rehabilitation&title=Therapy%20%26%20Mobility" },
-            { name: "Posture Correctors", href: "/products?nav=dailySupport&bodyPart=Neck&type=Posture&title=Posture%20Correctors" },
-            { name: "Splints & Immobilizers", href: "/products?nav=dailySupport&usage=Post-Surgical&title=Splints%20%26%20Immobilizers" },
-            { name: "Hot & Cold Therapy", href: "/products?nav=dailySupport&usage=Rehabilitation&type=Therapy&title=Hot%20%26%20Cold%20Therapy" },
-          ],
+          items: supportItems,
         },
       ],
     },
@@ -201,6 +204,37 @@ export default function Navbar() {
     };
 
     fetchActivities();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSupports = async () => {
+      try {
+        const response = await fetch(buildApiUrl('supports'));
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || "Unable to load support types.");
+        }
+
+        const items = data.data.map((item) => ({
+          name: item.name,
+          href: `/products?nav=dailySupport&usage=${encodeURIComponent(item.name)}&title=${encodeURIComponent(item.name)}`,
+        }));
+
+        if (isMounted && items.length > 0) {
+          setSupportItems(items);
+        }
+      } catch (err) {
+        // Keep defaults on failure.
+      }
+    };
+
+    fetchSupports();
     return () => {
       isMounted = false;
     };
