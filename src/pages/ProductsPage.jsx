@@ -14,7 +14,9 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [bodyPartOptions, setBodyPartOptions] = useState(defaultBodyParts);
+  const [bodyParts, setBodyParts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [activities, setActivities] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
     bodyPart: [],
     category: [],
@@ -95,9 +97,12 @@ export default function ProductsPage() {
           throw new Error(data.message || 'Unable to load body parts.');
         }
 
-        const names = data.data.map((item) => item.name).filter(Boolean);
-        if (isMounted && names.length > 0) {
-          setBodyPartOptions(names);
+        if (isMounted) {
+          setBodyParts(data.data);
+          const names = data.data.map((item) => item.name).filter(Boolean);
+          if (names.length > 0) {
+            setBodyPartOptions(names);
+          }
         }
       } catch (err) {
         // Keep defaults on failure.
@@ -105,6 +110,28 @@ export default function ProductsPage() {
     };
 
     fetchBodyParts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchActivities = async () => {
+      try {
+        const response = await fetch(buildApiUrl('activities'));
+        const data = await response.json();
+
+        if (isMounted && data.success && Array.isArray(data.data)) {
+          setActivities(data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch activities:', err);
+      }
+    };
+
+    fetchActivities();
     return () => {
       isMounted = false;
     };
@@ -142,12 +169,31 @@ export default function ProductsPage() {
   );
 
   const activeCategory = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const urlTitle = params.get('title');
+
+    // Priority 1: Category
     if (selectedFilters.category.length === 1) {
       const catName = selectedFilters.category[0];
-      return categories.find(c => c.name === catName);
+      const cat = categories.find(c => c.name === catName);
+      return cat ? { ...cat, name: urlTitle || cat.name, type: 'Category' } : { name: urlTitle || catName, type: 'Category' };
+    }
+    // Priority 2: Body Part
+    if (selectedFilters.bodyPart.length === 1) {
+      const bpName = selectedFilters.bodyPart[0];
+      const bp = bodyParts.find(b => b.name === bpName);
+      
+      return bp ? { ...bp, name: urlTitle || bp.name, type: 'Body Part' } : { name: urlTitle || bpName, type: 'Body Part' };
+    }
+    // Priority 3: Usage/Activity
+    if (selectedFilters.usage.length === 1) {
+      const usageName = selectedFilters.usage[0];
+      const activity = activities.find(a => a.name === usageName);
+      
+      return activity ? { ...activity, name: urlTitle || activity.name, type: 'Activity' } : { name: urlTitle || usageName, type: 'Activity' };
     }
     return null;
-  }, [selectedFilters.category, categories]);
+  }, [selectedFilters, categories, bodyParts, activities, location.search]);
 
   const filters = useMemo(
     () => ({
@@ -232,7 +278,7 @@ export default function ProductsPage() {
               )}
               <div className="flex-1 text-center md:text-left">
                 <div className="inline-block px-4 py-1.5 bg-medical-100 text-medical-700 rounded-full text-sm font-semibold mb-4">
-                  Category
+                  {activeCategory.type || 'Category'}
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
                   {activeCategory.name}
