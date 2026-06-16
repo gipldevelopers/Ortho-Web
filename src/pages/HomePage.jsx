@@ -75,6 +75,7 @@ export default function HomePage() {
             description: item.description || `Explore products in ${name}.`,
             imageUrl: item.imageUrl || '',
             href: `/products?category=${encodeURIComponent(name)}`,
+            productCount: item.productCount || 0,
           };
         });
 

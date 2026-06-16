@@ -16,12 +16,30 @@ import { buildApiUrl } from "../config/api";
 import { TrendingUp, History, Star } from 'lucide-react';
 
 const defaultBodyPartItems = [
-  { name: "Ankle & Foot", href: "/products?nav=bodyPart&bodyPart=Ankle" },
-  { name: "Knee", href: "/products?nav=bodyPart&bodyPart=Knee" },
-  { name: "Lumbar & Back", href: "/products?nav=bodyPart&bodyPart=Back" },
-  { name: "Wrist & Hand", href: "/products?nav=bodyPart&bodyPart=Wrist" },
-  { name: "Cervical & Posture", href: "/products?nav=bodyPart&bodyPart=Neck" },
-  { name: "Upper Limb", href: "/products?nav=bodyPart&bodyPart=Shoulder" },
+  { name: "Ankle & Foot", href: "/products?nav=bodyPart&bodyPart=Ankle&title=Ankle%20%26%20Foot" },
+  { name: "Knee", href: "/products?nav=bodyPart&bodyPart=Knee&title=Knee" },
+  { name: "Lumbar & Back", href: "/products?nav=bodyPart&bodyPart=Back&title=Lumbar%20%26%20Back" },
+  { name: "Wrist & Hand", href: "/products?nav=bodyPart&bodyPart=Wrist&title=Wrist%20%26%20Hand" },
+  { name: "Cervical & Posture", href: "/products?nav=bodyPart&bodyPart=Neck&title=Cervical%20%26%20Posture" },
+  { name: "Upper Limb", href: "/products?nav=bodyPart&bodyPart=Shoulder&title=Upper%20Limb" },
+];
+
+const defaultActivityItems = [
+  { name: "Sports & Athletics", href: "/products?nav=activity&usage=Sports%20%26%20Athletics&title=Sports%20%26%20Athletics" },
+  { name: "Daily Use", href: "/products?nav=activity&usage=Daily%20Use&type=Daily&title=Daily%20Use" },
+  { name: "Post-Surgery", href: "/products?nav=activity&usage=Post-Surgery&title=Post-Surgery" },
+  { name: "Elderly Care", href: "/products?nav=activity&usage=Elderly%20Care&title=Elderly%20Care" },
+  { name: "Pediatric", href: "/products?nav=activity&usage=Pediatric&type=Pediatric&title=Pediatric" },
+  { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Workplace%20Ergonomics&type=Ergonomics&title=Workplace%20Ergonomics" },
+];
+
+const defaultSupportItems = [
+  { name: "Compression Products", href: "/products?nav=dailySupport&usage=Daily%20Use&type=Compression&title=Compression%20Products" },
+  { name: "Braces & Supports", href: "/products?nav=dailySupport&usage=Prevention&title=Braces%20%26%20Supports" },
+  { name: "Therapy & Mobility", href: "/products?nav=dailySupport&usage=Rehabilitation&title=Therapy%20%26%20Mobility" },
+  { name: "Posture Correctors", href: "/products?nav=dailySupport&bodyPart=Neck&type=Posture&title=Posture%20Correctors" },
+  { name: "Splints & Immobilizers", href: "/products?nav=dailySupport&usage=Post-Surgical&title=Splints%20%26%20Immobilizers" },
+  { name: "Hot & Cold Therapy", href: "/products?nav=dailySupport&usage=Rehabilitation&type=Therapy&title=Hot%20%26%20Cold%20Therapy" },
 ];
 
 export default function Navbar() {
@@ -34,6 +52,8 @@ export default function Navbar() {
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [trendingProducts] = useState(featuredProducts.slice(0, 3));
   const [bodyPartItems, setBodyPartItems] = useState(defaultBodyPartItems);
+  const [activityItems, setActivityItems] = useState(defaultActivityItems);
+  const [supportItems, setSupportItems] = useState(defaultSupportItems);
   
   const { user, logout, cartCount, wishlistCount } = useAppContext();
   const location = useLocation();
@@ -65,14 +85,7 @@ export default function Navbar() {
       megaMenu: [
         {
           title: "By Activity",
-          items: [
-            { name: "Sports & Athletics", href: "/products?nav=activity&usage=Sports" },
-            { name: "Daily Use", href: "/products?nav=activity&usage=Daily%20Support" },
-            { name: "Post-Surgery", href: "/products?nav=activity&usage=Post-Surgical" },
-            { name: "Elderly Care", href: "/products?nav=activity&usage=Rehabilitation" },
-            { name: "Pediatric", href: "/products?nav=activity&usage=Daily%20Support" },
-            { name: "Workplace Ergonomics", href: "/products?nav=activity&usage=Daily%20Support" },
-          ],
+          items: activityItems,
         },
       ],
     },
@@ -83,14 +96,7 @@ export default function Navbar() {
       megaMenu: [
         {
           title: "By Support Type",
-          items: [
-            { name: "Compression Products", href: "/products?nav=dailySupport&usage=Daily%20Support" },
-            { name: "Braces & Supports", href: "/products?nav=dailySupport&usage=Prevention" },
-            { name: "Therapy & Mobility", href: "/products?nav=dailySupport&usage=Rehabilitation" },
-            { name: "Posture Correctors", href: "/products?nav=dailySupport&bodyPart=Neck" },
-            { name: "Splints & Immobilizers", href: "/products?nav=dailySupport&usage=Post-Surgical" },
-            { name: "Hot & Cold Therapy", href: "/products?nav=dailySupport&usage=Rehabilitation" },
-          ],
+          items: supportItems,
         },
       ],
     },
@@ -155,7 +161,7 @@ export default function Navbar() {
 
         const items = data.data.map((item) => ({
           name: item.name,
-          href: `/products?nav=bodyPart&bodyPart=${encodeURIComponent(item.name)}`,
+          href: `/products?nav=bodyPart&bodyPart=${encodeURIComponent(item.name)}&title=${encodeURIComponent(item.name)}`,
         }));
 
         if (isMounted && items.length > 0) {
@@ -167,6 +173,68 @@ export default function Navbar() {
     };
 
     fetchBodyParts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchActivities = async () => {
+      try {
+        const response = await fetch(buildApiUrl('activities'));
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || "Unable to load activities.");
+        }
+
+        const items = data.data.map((item) => ({
+          name: item.name,
+          href: `/products?nav=activity&usage=${encodeURIComponent(item.name)}&title=${encodeURIComponent(item.name)}`,
+        }));
+
+        if (isMounted && items.length > 0) {
+          setActivityItems(items);
+        }
+      } catch (err) {
+        // Keep defaults on failure.
+      }
+    };
+
+    fetchActivities();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSupports = async () => {
+      try {
+        const response = await fetch(buildApiUrl('supports'));
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || "Unable to load support types.");
+        }
+
+        const items = data.data.map((item) => ({
+          name: item.name,
+          href: `/products?nav=dailySupport&usage=${encodeURIComponent(item.name)}&title=${encodeURIComponent(item.name)}`,
+        }));
+
+        if (isMounted && items.length > 0) {
+          setSupportItems(items);
+        }
+      } catch (err) {
+        // Keep defaults on failure.
+      }
+    };
+
+    fetchSupports();
     return () => {
       isMounted = false;
     };
@@ -425,7 +493,12 @@ export default function Navbar() {
                                 <li key={item.name}>
                                   <Link
                                     to={item.href}
-                                    className="block text-sm text-slate-600 hover:text-medical-600 hover:translate-x-1 transition-all duration-150 py-1">
+                                    className={`block text-sm transition-all duration-150 py-1 ${
+                                      decodeURIComponent(location.pathname + location.search) === decodeURIComponent(item.href)
+                                        ? "text-medical-600 font-semibold"
+                                        : "text-slate-600 hover:text-medical-600 hover:translate-x-1"
+                                    }`}
+                                  >
                                     {item.name}
                                   </Link>
                                 </li>
@@ -506,7 +579,12 @@ export default function Navbar() {
                                     <Link
                                       key={item.name}
                                       to={item.href}
-                                      className="block py-1.5 px-2 text-sm text-slate-500 hover:text-medical-600 rounded transition-colors">
+                                      className={`block py-1.5 px-2 text-sm rounded transition-colors ${
+                                        decodeURIComponent(location.pathname + location.search) === decodeURIComponent(item.href)
+                                          ? "text-medical-600 bg-medical-50 font-medium"
+                                          : "text-slate-500 hover:text-medical-600"
+                                      }`}
+                                    >
                                       {item.name}
                                     </Link>
                                   ))}

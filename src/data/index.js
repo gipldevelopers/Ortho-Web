@@ -142,7 +142,7 @@ export const featuredProducts = [
     code: "OC-SB-006",
     category: "Upper Limb",
     bodyPart: "Shoulder",
-    usage: "Post-Surgical",
+    usage: "Post-Surgery",
     description: "Comprehensive shoulder brace with rotator cuff support and immobilization features.",
     image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500&h=500&fit=crop",
     badge: "Medical Grade",
@@ -155,7 +155,7 @@ export const featuredProducts = [
     code: "OC-WS-007",
     category: "Wrist & Hand",
     bodyPart: "Wrist",
-    usage: "Daily Support",
+    usage: "Daily Use",
     description: "Breathable wrist splint for carpal tunnel relief and stability.",
     image: "https://images.unsplash.com/photo-1588615419958-e630ebb3b1bc?w=500&h=500&fit=crop",
     features: ["Aluminum stay", "Breathable mesh", "Adjustable straps"],
@@ -167,7 +167,7 @@ export const featuredProducts = [
     code: "OC-PC-008",
     category: "Cervical & Posture",
     bodyPart: "Neck",
-    usage: "Daily Support",
+    usage: "Daily Use",
     description: "Adjustable posture corrector to pull shoulders back and align the spine.",
     image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&h=500&fit=crop",
     badge: "New",
@@ -180,7 +180,7 @@ export const featuredProducts = [
     code: "OC-ES-009",
     category: "Upper Limb",
     bodyPart: "Shoulder",
-    usage: "Sports",
+    usage: "Sports & Athletics",
     description: "Compression sleeve for lateral epicondylitis relief.",
     image: "https://images.unsplash.com/photo-1597452485669-2c7bb5fef90d?w=500&h=500&fit=crop",
     features: ["Gel pad", "Breathable", "Targeted compression"],
@@ -190,11 +190,11 @@ export const featuredProducts = [
 
 // Add bodyPart and usage to existing products
 featuredProducts.forEach(p => {
-  if (p.id === 'knee-brace-pro') { p.bodyPart = 'Knee'; p.usage = 'Sports'; }
-  if (p.id === 'ankle-support') { p.bodyPart = 'Ankle'; p.usage = 'Sports'; }
-  if (p.id === 'compression-sleeve') { p.bodyPart = 'Back'; p.usage = 'Daily Support'; }
-  if (p.id === 'back-support') { p.bodyPart = 'Back'; p.usage = 'Daily Support'; }
-  if (p.id === 'wrist-brace') { p.bodyPart = 'Wrist'; p.usage = 'Daily Support'; }
+  if (p.id === 'knee-brace-pro') { p.bodyPart = 'Knee'; p.usage = 'Sports & Athletics'; }
+  if (p.id === 'ankle-support') { p.bodyPart = 'Ankle'; p.usage = 'Sports & Athletics'; }
+  if (p.id === 'compression-sleeve') { p.bodyPart = 'Back'; p.usage = 'Daily Use'; }
+  if (p.id === 'back-support') { p.bodyPart = 'Back'; p.usage = 'Daily Use'; }
+  if (p.id === 'wrist-brace') { p.bodyPart = 'Wrist'; p.usage = 'Daily Use'; }
 });
 
 export const whyChooseUs = [
