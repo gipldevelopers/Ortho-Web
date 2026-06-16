@@ -52,7 +52,7 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen pt-2">
       {/* Hero Section */}
       <section className="relative py-12 gradient-bg overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

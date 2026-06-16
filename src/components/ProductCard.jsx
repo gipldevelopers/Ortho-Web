@@ -90,6 +90,31 @@ export default function ProductCard({ product, index = 0 }) {
         </h3>
         <p className="text-[10px] sm:text-sm text-slate-400 mb-2">{product.code}</p>
         <p className="hidden sm:block text-sm text-slate-600 mb-4 line-clamp-2">{product.description}</p>
+
+        {/* Price */}
+        {product.mrp && (
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {product.discount > 0 ? (
+              <>
+                <span className="text-base sm:text-lg font-bold text-medical-600">
+                  <span className="text-xs font-semibold text-slate-500 mr-0.5">MRP</span>
+                  ₹{Number(product.price).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                </span>
+                <span className="text-xs sm:text-sm text-slate-400">
+                  <span className="line-through">₹{Number(product.mrp).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                </span>
+                <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full">
+                  {product.discount}% OFF
+                </span>
+              </>
+            ) : (
+              <span className="text-base sm:text-lg font-bold text-slate-800">
+                <span className="text-xs font-semibold text-slate-500 mr-0.5">MRP</span>
+                ₹{Number(product.mrp).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+              </span>
+            )}
+          </div>
+        )}
         
         <div className="flex flex-col sm:flex-row gap-2">
           <Link

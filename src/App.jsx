@@ -190,7 +190,6 @@ function AppShell({ siteMode }) {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/products/:id" element={<ProductDetailPage />} />
-              <Route path="/products/:category/:id" element={<ProductDetailPage />} />
               <Route path="/products/compression" element={<ProductsPage />} />
               <Route path="/products/ankle-foot" element={<ProductsPage />} />
               <Route path="/products/knee" element={<ProductsPage />} />

@@ -1,30 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, MessageCircle, Download, Check, Info, FileText, Package, Ruler, Heart, Share2, PlayCircle } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, MessageCircle, Check, Info, FileText, Ruler, Heart, Share2, PlayCircle } from 'lucide-react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { featuredProducts } from '../data';
-import Button from '../components/Button';
 import { useAppContext } from '../context/AppContext';
 import { buildApiUrl } from '../config/api';
 
 const tabs = [
-  { id: 'description', label: 'Description', icon: Info },
-  { id: 'features', label: 'Features', icon: Check },
-  { id: 'indications', label: 'Indications', icon: FileText },
-  { id: 'sizing', label: 'Size Chart', icon: Ruler },
-];
-
-const sizeChart = [
-  { size: 'XS', measurement: '30-35 cm', fits: 'Small frame' },
-  { size: 'S', measurement: '35-40 cm', fits: 'Medium frame' },
-  { size: 'M', measurement: '40-45 cm', fits: 'Average frame' },
-  { size: 'L', measurement: '45-50 cm', fits: 'Large frame' },
-  { size: 'XL', measurement: '50-55 cm', fits: 'Extra large' },
-  { size: 'XXL', measurement: '55-60 cm', fits: 'XXL frame' },
+  { id: 'description',  label: 'Detail Description', icon: Info },
+  { id: 'features',     label: 'Features',            icon: Check },
+  { id: 'indications',  label: 'Indications',         icon: FileText },
+  { id: 'how-to-wear',  label: 'How to Wear',         icon: Info },
+  { id: 'measurement',  label: 'Measurement',         icon: Ruler },
+  { id: 'sizing',       label: 'Size Chart',          icon: Ruler },
 ];
 
 export default function ProductDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('description');
   const [selectedImage, setSelectedImage] = useState(0);
   const [touchStartX, setTouchStartX] = useState(null);
@@ -44,9 +37,15 @@ export default function ProductDetailPage() {
     let isMounted = true;
     const fallbackProduct = featuredProducts.find((p) => p.id === id) || featuredProducts[0];
 
+    // Reset state for new product
+    setProduct(null);
+    setIsLoading(true);
+    setLoadError('');
+    setActiveTab('description');
+    setSelectedImage(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     const fetchProduct = async () => {
-      setIsLoading(true);
-      setLoadError('');
       try {
         const response = await fetch(buildApiUrl(`products/${encodeURIComponent(id)}`));
         const data = await response.json();
@@ -84,9 +83,10 @@ export default function ProductDetailPage() {
 
   if (isLoading && !product) {
     return (
-      <div className="min-h-screen pt-28 pb-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-slate-500">Loading product...</p>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-slate-400">
+          <div className="w-8 h-8 border-2 border-medical-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm">Loading product...</p>
         </div>
       </div>
     );
@@ -94,158 +94,151 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen pt-28 pb-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-red-600">Product not found.</p>
-        </div>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <p className="text-red-600">Product not found.</p>
       </div>
     );
   }
 
+  // ── helper: which tabs have content ──────────────────────────────────────
+  const visibleTabs = tabs.filter(({ id: tabId }) => {
+    if (tabId === 'description')  return !!product.detailDescription || !!product.description;
+    if (tabId === 'features')     return Array.isArray(product.features) && product.features.length > 0;
+    if (tabId === 'indications')  return Array.isArray(product.indications) && product.indications.length > 0;
+    if (tabId === 'how-to-wear')  return !!product.howToWear;
+    if (tabId === 'measurement')  return !!product.measurement;
+    if (tabId === 'sizing')       return product.sizeChart?.columns?.length > 0 && product.sizeChart?.rows?.length > 0;
+    return false;
+  });
+
   const tabContent = {
+    // ── Detail Description ──────────────────────────────────────────────────
     description: (
-      <div className="space-y-4">
-        <p className="text-slate-600 leading-relaxed">
-          The {product.name} is engineered with premium materials and advanced design features 
-          to provide optimal support and comfort during recovery. This medical-grade device 
-          combines the latest in orthopaedic technology with user-centric design.
-        </p>
-        <p className="text-slate-600 leading-relaxed">
-          Constructed from breathable, moisture-wicking fabric with adjustable compression 
-          zones, this product ensures all-day comfort while delivering the therapeutic 
-          support you need. The ergonomic design conforms to your body\'s natural contours 
-          while maintaining the stability required for effective rehabilitation.
-        </p>
-        <h4 className="font-semibold text-slate-900 mt-6">Key Benefits</h4>
-        <ul className="space-y-2">
-          {[
-            'Reduces pain and inflammation',
-            'Improves circulation and healing',
-            'Provides targeted compression',
-            'Maintains full range of motion',
-            'Breathable for all-day comfort',
-          ].map((benefit, i) => (
-            <li key={i} className="flex items-center space-x-2 text-slate-600">
-              <Check className="w-5 h-5 text-medical-500" />
-              <span>{benefit}</span>
-            </li>
-          ))}
-        </ul>
+      <div className="text-slate-600 leading-relaxed whitespace-pre-wrap text-base">
+        {product.detailDescription || product.description}
       </div>
     ),
+
+    // ── Features ────────────────────────────────────────────────────────────
     features: (
-      <div className="grid sm:grid-cols-2 gap-4">
-        {product.features?.map((feature, i) => (
+      <div className="grid sm:grid-cols-2 gap-3">
+        {(product.features || []).map((feature, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="flex items-start space-x-3 p-4 bg-slate-50 rounded-xl"
+            transition={{ delay: i * 0.05 }}
+            className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100"
           >
-            <div className="w-8 h-8 bg-medical-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-7 h-7 bg-medical-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
               <Check className="w-4 h-4 text-medical-600" />
             </div>
-            <span className="text-slate-700">{feature}</span>
-          </motion.div>
-        ))}
-        {[
-          'Medical-grade materials',
-          'Machine washable',
-          'Latex-free construction',
-          'Antimicrobial treatment',
-          'Adjustable fit system',
-          'Breathable mesh panels',
-        ].map((feature, i) => (
-          <motion.div
-            key={`extra-${i}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: (product.features?.length || 0 + i) * 0.1 }}
-            className="flex items-start space-x-3 p-4 bg-slate-50 rounded-xl"
-          >
-            <div className="w-8 h-8 bg-medical-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Check className="w-4 h-4 text-medical-600" />
-            </div>
-            <span className="text-slate-700">{feature}</span>
+            <span className="text-slate-700 text-sm leading-relaxed">{feature}</span>
           </motion.div>
         ))}
       </div>
     ),
+
+    // ── Indications ─────────────────────────────────────────────────────────
     indications: (
       <div className="space-y-4">
-        <p className="text-slate-600">
-          This product is recommended for the following conditions and uses:
-        </p>
-        <div className="grid sm:grid-cols-2 gap-4">
-          {product.indications?.map((indication, i) => (
-            <div key={i} className="flex items-center space-x-3 p-4 bg-medical-50 rounded-xl">
-              <div className="w-2 h-2 bg-medical-500 rounded-full" />
-              <span className="text-slate-700">{indication}</span>
-            </div>
-          ))}
-          {[
-            'Post-surgical recovery',
-            'Chronic condition management',
-            'Sports injury prevention',
-            'Rehabilitation support',
-          ].map((indication, i) => (
-            <div key={`extra-${i}`} className="flex items-center space-x-3 p-4 bg-medical-50 rounded-xl">
-              <div className="w-2 h-2 bg-medical-500 rounded-full" />
-              <span className="text-slate-700">{indication}</span>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {(product.indications || []).map((item, i) => (
+            <div key={i} className="flex items-center gap-3 p-4 bg-medical-50 rounded-xl border border-medical-100">
+              <div className="w-2 h-2 bg-medical-500 rounded-full flex-shrink-0" />
+              <span className="text-slate-700 text-sm">{item}</span>
             </div>
           ))}
         </div>
-        <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-          <div className="flex items-start space-x-3">
-            <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-800">
-              Always consult with a healthcare professional before using this product. 
-              Individual results may vary based on condition severity and proper usage.
-            </p>
-          </div>
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+          <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-800">
+            Always consult with a healthcare professional before using this product.
+          </p>
         </div>
       </div>
     ),
-    sizing: (
-      <div className="space-y-6">
-        <p className="text-slate-600">
-          Use the chart below to find your perfect fit. Measure around the affected area 
-          and match to the corresponding size.
+
+    // ── How to Wear ─────────────────────────────────────────────────────────
+    'how-to-wear': (
+      <div className="text-slate-600 leading-relaxed whitespace-pre-wrap text-base">
+        {product.howToWear}
+      </div>
+    ),
+
+    // ── Measurement ─────────────────────────────────────────────────────────
+    measurement: (
+      <div className="space-y-5">
+        {(product.measurement || '').split(/\n\s*\n/).filter(g => g.trim()).map((group, gi) => {
+          const lines = group.split('\n').map(l => l.trim()).filter(Boolean);
+          return (
+            <div key={gi} className="rounded-xl border border-slate-200 overflow-hidden">
+              {lines.map((line, li) => (
+                <div
+                  key={li}
+                  className={`px-5 py-3 text-sm border-b border-slate-100 last:border-0 ${
+                    li === 0
+                      ? 'bg-medical-500 text-white font-semibold'
+                      : 'bg-white text-slate-700 font-medium'
+                  }`}
+                >
+                  {line}
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    ),
+
+    // ── Size Chart ──────────────────────────────────────────────────────────
+    sizing: product.sizeChart?.columns?.length > 0 ? (
+      <div className="space-y-5">
+        <p className="text-slate-500 text-sm">
+          Measure around the affected area and match to the corresponding size.
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto rounded-xl border border-slate-200">
+          <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-slate-50">
-                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 rounded-tl-lg">Size</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900">Measurement</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 rounded-tr-lg">Fits</th>
+              <tr className="bg-medical-500 text-white">
+                {product.sizeChart.columns.map((col, i) => (
+                  <th key={i} className="px-5 py-3 text-left font-semibold whitespace-nowrap">
+                    {col}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {sizeChart.map((row, i) => (
-                <tr key={i} className="border-b border-slate-100 last:border-0">
-                  <td className="px-4 py-3 font-medium text-slate-900">{row.size}</td>
-                  <td className="px-4 py-3 text-slate-600">{row.measurement}</td>
-                  <td className="px-4 py-3 text-slate-600">{row.fits}</td>
+              {product.sizeChart.rows.map((row, i) => (
+                <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                  {product.sizeChart.columns.map((_, colIdx) => (
+                    <td
+                      key={colIdx}
+                      className={`px-5 py-3 border-b border-slate-100 ${
+                        colIdx === 0 ? 'font-semibold text-slate-900' : 'text-slate-600'
+                      }`}
+                    >
+                      {row[colIdx] ?? ''}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="flex items-start space-x-3 p-4 bg-slate-50 rounded-xl">
+        <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
           <Ruler className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-slate-600">
-            For the most accurate fit, measure in the morning when swelling is minimal. 
+          <p className="text-sm text-slate-500">
+            For the most accurate fit, measure in the morning when swelling is minimal.
             If between sizes, choose the larger size for comfort.
           </p>
         </div>
       </div>
-    ),
+    ) : null,
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-24 bg-white">
+    <div className="min-h-screen pt-0 pb-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="py-4">
@@ -325,115 +318,120 @@ export default function ProductDetailPage() {
           };
 
           return (
-            <div className="grid lg:grid-cols-12 gap-12">
-          {/* Images Section */}
-          <div className="lg:col-span-5 space-y-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="relative aspect-square bg-slate-100 rounded-3xl overflow-hidden shadow-inner border border-slate-100"
-              onTouchStart={handleMediaTouchStart}
-              onTouchEnd={handleMediaTouchEnd}
-            >
-              {activeMedia?.type === 'video' ? (
-                <video
-                  src={activeMedia.url}
-                  controls
-                  preload="metadata"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <img
-                  src={activeMedia?.url || product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+            <div className="grid lg:grid-cols-12 gap-8">
+
+          {/* ── Images Section ─────────────────────────────────────────── */}
+          <div className="lg:col-span-4">
+            {/* Desktop: thumbnails left + main image right */}
+            <div className="flex gap-3">
+
+              {/* Vertical thumbnail strip — hidden on mobile */}
+              {mediaItems.length > 1 && (
+                <div
+                  ref={thumbTrackRef}
+                  className={`hidden sm:flex flex-col gap-2 flex-shrink-0 select-none ${
+                    isThumbDragging ? 'cursor-grabbing' : 'cursor-default'
+                  }`}
+                  onMouseDown={handleThumbMouseDown}
+                  onMouseMove={handleThumbMouseMove}
+                  onMouseUp={stopThumbDragging}
+                  onMouseLeave={stopThumbDragging}
+                >
+                  {mediaItems.map((mediaItem, i) => (
+                    <button
+                      key={mediaItem.key}
+                      type="button"
+                      onClick={() => setSelectedImage(i)}
+                      className={`relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
+                        selectedImage === i
+                          ? 'border-medical-500 shadow-md'
+                          : 'border-slate-200 hover:border-medical-300'
+                      }`}
+                    >
+                      {mediaItem.type === 'video' ? (
+                        <>
+                          <video src={mediaItem.url} preload="metadata" muted className="w-full h-full object-cover" />
+                          <span className="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <PlayCircle className="w-5 h-5 text-white drop-shadow" />
+                          </span>
+                        </>
+                      ) : (
+                        <img src={mediaItem.url} alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" />
+                      )}
+                    </button>
+                  ))}
+                </div>
               )}
 
-              {hasMultipleMedia && (
-                <>
-                  <button
-                    type="button"
-                    onClick={goToPreviousMedia}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-slate-700 shadow hover:bg-white transition"
-                    aria-label="Previous media"
-                  >
-                    <ChevronLeft className="w-5 h-5 mx-auto" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={goToNextMedia}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-slate-700 shadow hover:bg-white transition"
-                    aria-label="Next media"
-                  >
-                    <ChevronRight className="w-5 h-5 mx-auto" />
-                  </button>
-                </>
-              )}
-            </motion.div>
+              {/* Main image */}
+              <div className="flex-1 min-w-0">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="relative aspect-square bg-slate-100 rounded-2xl overflow-hidden border border-slate-200"
+                  onTouchStart={handleMediaTouchStart}
+                  onTouchEnd={handleMediaTouchEnd}
+                >
+                  {activeMedia?.type === 'video' ? (
+                    <video src={activeMedia.url} controls preload="metadata" className="w-full h-full object-cover" />
+                  ) : (
+                    <img src={activeMedia?.url || product.image} alt={product.name} className="w-full h-full object-cover" />
+                  )}
 
-            {mediaItems.length > 1 && (
-              <div
-                ref={thumbTrackRef}
-                className={`flex gap-3 overflow-x-auto scrollbar-hide pb-1 select-none ${
-                  isThumbDragging ? 'cursor-grabbing' : 'cursor-grab'
-                }`}
-                onMouseDown={handleThumbMouseDown}
-                onMouseMove={handleThumbMouseMove}
-                onMouseUp={stopThumbDragging}
-                onMouseLeave={stopThumbDragging}
-              >
-                {mediaItems.map((mediaItem, i) => (
-                  <button
-                    key={mediaItem.key}
-                    type="button"
-                    onClick={() => setSelectedImage(i)}
-                    className={`relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all ${
-                      selectedImage === i ? 'border-medical-500 bg-medical-50' : 'border-transparent bg-slate-50'
-                    }`}
-                  >
-                    {mediaItem.type === 'video' ? (
-                      <>
-                        <video
-                          src={mediaItem.url}
-                          preload="metadata"
-                          muted
-                          className="w-full h-full object-cover opacity-85"
-                        />
-                        <span className="absolute inset-0 flex items-center justify-center">
-                          <PlayCircle className="w-6 h-6 text-white drop-shadow" />
-                        </span>
-                      </>
-                    ) : (
-                      <img
-                        src={mediaItem.url}
-                        alt={`${product.name} media ${i + 1}`}
-                        className="w-full h-full object-cover opacity-85 hover:opacity-100"
-                      />
-                    )}
-                  </button>
-                ))}
+                  {hasMultipleMedia && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={goToPreviousMedia}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-slate-700 shadow flex items-center justify-center hover:bg-white transition"
+                        aria-label="Previous"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={goToNextMedia}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-slate-700 shadow flex items-center justify-center hover:bg-white transition"
+                        aria-label="Next"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </motion.div>
+
+                {/* Mobile: horizontal thumbnail strip */}
+                {mediaItems.length > 1 && (
+                  <div className="sm:hidden flex gap-2 mt-2 overflow-x-auto scrollbar-hide pb-1">
+                    {mediaItems.map((mediaItem, i) => (
+                      <button
+                        key={mediaItem.key}
+                        type="button"
+                        onClick={() => setSelectedImage(i)}
+                        className={`relative w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+                          selectedImage === i ? 'border-medical-500' : 'border-slate-200'
+                        }`}
+                      >
+                        {mediaItem.type === 'video' ? (
+                          <>
+                            <video src={mediaItem.url} preload="metadata" muted className="w-full h-full object-cover" />
+                            <span className="absolute inset-0 flex items-center justify-center bg-black/20">
+                              <PlayCircle className="w-4 h-4 text-white" />
+                            </span>
+                          </>
+                        ) : (
+                          <img src={mediaItem.url} alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-            {mediaItems.length > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-1">
-                {mediaItems.map((mediaItem, i) => (
-                  <button
-                    key={`dot-${mediaItem.key}`}
-                    type="button"
-                    onClick={() => setSelectedImage(i)}
-                    aria-label={`Go to media ${i + 1}`}
-                    className={`h-2.5 rounded-full transition-all ${
-                      selectedImage === i ? 'w-6 bg-medical-500' : 'w-2.5 bg-slate-300 hover:bg-slate-400'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
+            </div>
           </div>
 
           {/* Product Info */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -453,50 +451,123 @@ export default function ProductDetailPage() {
                 {product.name}
               </h1>
               <p className="text-slate-500 mb-6">{product.code}</p>
+
+              {/* Price & MRP */}
+              {product.mrp && (
+                <div className="mb-6">
+                  {product.discount > 0 ? (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-baseline gap-3 flex-wrap">
+                        <span className="text-4xl font-bold text-slate-900">
+                          ₹{Number(product.price).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                        </span>
+                        <span className="text-lg text-slate-400 line-through">
+                          ₹{Number(product.mrp).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                        </span>
+                        <span className="text-sm font-bold text-white bg-green-500 px-3 py-1 rounded-full">
+                          {product.discount}% OFF
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-500">
+                        MRP: <span className="line-through">₹{Number(product.mrp).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                        {product.priceNote && <span> ({product.priceNote})</span>}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-4xl font-bold text-slate-900">
+                        ₹{Number(product.mrp).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                      </span>
+                      {product.priceNote && (
+                        <p className="text-sm text-slate-500">MRP ({product.priceNote})</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
               
-              <p className="text-lg text-slate-600 mb-8">
+              <p className="text-lg text-slate-600 mb-5">
                 {product.description}
               </p>
 
+              {/* Color Variants */}
+              {Array.isArray(product.colors) && product.colors.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Colors</p>
+                  <div className="flex flex-wrap gap-3">
+                    {product.colors.map((color, i) => {
+                      const isActive = !color.productId || color.productId === id;
+                      const hasLink = color.productId && color.productId.trim() !== '' && color.productId !== id;
+                      const swatch = (
+                        <span
+                          className={`w-9 h-9 rounded-full border-2 transition-all shadow-sm block ${
+                            isActive
+                              ? 'border-slate-900 scale-110 shadow-md'
+                              : 'border-slate-200 group-hover:border-slate-400 group-hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: color.hex || '#cccccc' }}
+                        />
+                      );
+                      return (
+                        <div key={i} className="flex flex-col items-center gap-1.5">
+                          {hasLink ? (
+                            <Link
+                              to={`/products/${color.productId.trim()}`}
+                              className="group"
+                              title={color.name}
+                            >
+                              {swatch}
+                            </Link>
+                          ) : (
+                            <span className="group" title={color.name}>{swatch}</span>
+                          )}
+                          {color.name && (
+                            <span className={`text-[10px] font-medium ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>
+                              {color.name}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-8 text-white">
+              <div className="flex gap-2 mb-6">
                 <button
                   onClick={() => addToEnquiry(product)}
-                  className="flex-1 inline-flex items-center justify-center px-8 py-3 gradient-medical text-white font-medium rounded-lg hover:shadow-lg hover:shadow-medical-500/30 transition-all duration-300 hover:-translate-y-0.5"
+                  className="flex-1 inline-flex items-center justify-center px-4 sm:px-8 py-2.5 sm:py-3 gradient-medical text-white font-medium text-sm sm:text-base rounded-lg hover:shadow-lg hover:shadow-medical-500/30 transition-all duration-300"
                 >
-                  <MessageCircle className="w-5 h-5 mr-2" />
+                  <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                   Add to Enquiry
                 </button>
-                <div className="flex gap-2">
-                  <Button 
-                    variant={isSaved ? "primary" : "secondary"} 
-                    size="lg"
-                    onClick={() => toggleSaved(product.id)}
-                    className={isSaved ? "bg-medical-500 text-white" : ""}
-                  >
-                    <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
-                  </Button>
-                  <Button variant="secondary" size="lg">
-                    <Share2 className="w-5 h-5" />
-                  </Button>
-                </div>
+                <button
+                  onClick={() => toggleSaved(product.id)}
+                  className={`w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex items-center justify-center rounded-lg border-2 transition-all ${
+                    isSaved ? 'bg-medical-500 border-medical-500 text-white' : 'border-slate-200 text-slate-500 hover:border-medical-400 hover:text-medical-500'
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isSaved ? 'fill-current' : ''}`} />
+                </button>
+                <button
+                  onClick={async () => {
+                    const shareData = { title: product.name, text: product.description || product.name, url: window.location.href };
+                    if (navigator.share) {
+                      try { await navigator.share(shareData); } catch (_) {}
+                    } else {
+                      try { await navigator.clipboard.writeText(window.location.href); alert('Link copied!'); }
+                      catch (_) { prompt('Copy this link:', window.location.href); }
+                    }
+                  }}
+                  className="w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex items-center justify-center rounded-lg border-2 border-slate-200 text-slate-500 hover:border-medical-400 hover:text-medical-500 transition-all"
+                  title="Share"
+                >
+                  <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
               </div>
 
-              {/* Quick Specs */}
-              <div className="grid grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl mb-8">
-                <div className="text-center">
-                  <Package className="w-6 h-6 text-medical-500 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-slate-900">Medical Grade</p>
-                </div>
-                <div className="text-center">
-                  <Check className="w-6 h-6 text-medical-500 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-slate-900">CE Certified</p>
-                </div>
-                <div className="text-center">
-                  <Download className="w-6 h-6 text-medical-500 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-slate-900">Datasheet</p>
-                </div>
-              </div>
+
             </motion.div>
           </div>
         </div>
@@ -504,10 +575,10 @@ export default function ProductDetailPage() {
         })()}
 
         {/* Tabs Section */}
-        <div className="mt-16">
+        <div className="mt-6">
           <div className="border-b border-slate-200">
             <div className="flex space-x-8 overflow-x-auto scrollbar-hide">
-              {tabs.map((tab) => (
+              {visibleTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -533,7 +604,7 @@ export default function ProductDetailPage() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                {tabContent[activeTab]}
+                {tabContent[activeTab] ?? tabContent['description'] ?? null}
               </motion.div>
             </AnimatePresence>
           </div>

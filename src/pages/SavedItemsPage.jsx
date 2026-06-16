@@ -1,16 +1,54 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag, Eye, Trash2 } from 'lucide-react';
+import { Heart, ShoppingBag, Trash2, Loader2 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { featuredProducts } from '../data';
 import SectionTitle from '../components/SectionTitle';
 import ProductCard from '../components/ProductCard';
+import { buildApiUrl } from '../config/api';
 
 export default function SavedItemsPage() {
   const { savedItems, toggleSaved } = useAppContext();
-  
-  // Filter products that are in the saved list
-  const savedProductList = featuredProducts.filter(p => savedItems.includes(p.id));
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchSavedProducts() {
+      if (savedItems.length === 0) {
+        setProducts([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+
+      // Fetch each saved product from the API, fall back to local data if needed
+      const results = await Promise.all(
+        savedItems.map(async (id) => {
+          try {
+            const res = await fetch(buildApiUrl(`products/${encodeURIComponent(id)}`));
+            const data = await res.json();
+            if (res.ok && data.success && data.data) return data.data;
+          } catch (_) {
+            // ignore
+          }
+          // fallback to local static data
+          return featuredProducts.find((p) => p.id === id) || null;
+        })
+      );
+
+      if (isMounted) {
+        setProducts(results.filter(Boolean));
+        setIsLoading(false);
+      }
+    }
+
+    fetchSavedProducts();
+    return () => { isMounted = false; };
+  }, [savedItems]);
 
   return (
     <div className="min-h-screen pt-32 pb-16 bg-slate-50">
@@ -20,9 +58,13 @@ export default function SavedItemsPage() {
           subtitle="Your Wishlist"
         />
 
-        {savedProductList.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="w-8 h-8 text-medical-500 animate-spin" />
+          </div>
+        ) : products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mt-12">
-            {savedProductList.map((product, index) => (
+            {products.map((product, index) => (
               <div key={product.id} className="relative group">
                 <ProductCard product={product} index={index} />
                 <button
